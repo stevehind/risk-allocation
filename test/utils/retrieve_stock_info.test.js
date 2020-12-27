@@ -1,0 +1,55 @@
+/**
+ * @jest-environment node
+ */
+
+const { isExpressionWithTypeArguments } = require('typescript')
+const retrieve_stock_info = require('../../utils/retrieve_stock_info')
+
+const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+
+// Tests for sanitizeStockTicker
+test('Sanitizes a ticker with leading $', () => {
+    expect(retrieve_stock_info.sanitizeStockTicker('$tsla')).toBe('tsla')
+})
+
+test('Sanitizes a ticker with spaces', () => {
+    expect(retrieve_stock_info.sanitizeStockTicker('ts la')).toBe('tsla')
+})
+
+test('Throws an error if ticker >5 chars', () => {
+    expect(() => {
+        retrieve_stock_info.sanitizeStockTicker('tslala');
+    }).toThrowError(sanitizeErrorMsg)
+})
+
+test('Throws an error if ticker <1 chars', () => {
+    expect(() => {
+        retrieve_stock_info.sanitizeStockTicker('');
+    }).toThrowError(sanitizeErrorMsg)
+})
+
+test('Applies length check only after removing $ and spaces', () => {
+    expect(retrieve_stock_info.sanitizeStockTicker('$  tsla')).toBe('tsla')
+})
+
+// Tests for retrieveStockInfo
+//TODO: Add a test to handle invalid input.
+test('returns an error for invalid input of tslala', () => {
+    expect.assertions(1);
+    return expect(retrieve_stock_info.retrieveStockInfo('tslala'))
+    .rejects.toEqual(new Error(sanitizeErrorMsg))
+}) 
+
+test('shows correct info for $tsla on 2020-12-24', () => {
+    return retrieve_stock_info.retrieveStockInfo('tsla')
+    .then(result => {
+        expect(result).toStrictEqual({
+            success: true,
+            data: {
+                last_price_dollars: 661.77,
+                opt_imp_vol_180d_pct: 0.6536,
+                ticker: "tsla"
+            }
+        })
+    })
+}) 
