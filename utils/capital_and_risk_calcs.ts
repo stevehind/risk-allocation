@@ -5,7 +5,10 @@ interface singleStockInfo {
     last_price_dollars: number;
     opt_imp_vol_180d_pct: number;
     shares_owned: number;
-    capital_invested: number;
+    capital_invested?: number;
+    capital_share?: number;
+    one_sigma_risk?: number;
+    risk_share?: number;
 }
 
 function capitalInvested(share_price: number, number_of_shares: number): number {
@@ -64,6 +67,8 @@ function riskShare(ticker: string, portfolio: Array<singleStockInfo>) {
 
     return target_risk / risk
 }
+
+
 
 const capital_and_risk_calcs = {
     capitalInvested: capitalInvested,

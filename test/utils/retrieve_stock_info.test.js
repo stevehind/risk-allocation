@@ -33,7 +33,7 @@ test('Applies length check only after removing $ and spaces', () => {
 })
 
 // Tests for retrieveStockInfo
-//TODO: Add a test to handle invalid input.
+//TODO: function should be returning an object with this message within it, rather than just throwing the error
 test('returns an error for invalid input of tslala', () => {
     expect.assertions(1);
     return expect(retrieve_stock_info.retrieveStockInfo('tslala'))
