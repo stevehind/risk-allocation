@@ -11,6 +11,11 @@ interface singleStockInfo {
     risk_share?: number;
 }
 
+interface stockInput {
+    ticker: string,
+    shares_owned: number,
+}
+
 function capitalInvested(share_price: number, number_of_shares: number): number {
     return share_price * number_of_shares
 }
@@ -21,7 +26,7 @@ function createSingleStockInfo(ticker: string, shares_owned: number): singleStoc
 
         if (response.success) {
             let data = response.data
-            let capital_invested = capitalInvested(data.last_price_dollars, shares_owned )
+            let capital_invested = capital_and_risk_calcs.capitalInvested(data.last_price_dollars, shares_owned )
 
             data.shares_owned = shares_owned;
             data.capital_invested = capital_invested;
@@ -30,6 +35,12 @@ function createSingleStockInfo(ticker: string, shares_owned: number): singleStoc
         }
     })
     .catch(err => console.error(err))
+}
+
+function createPortfolio(inputs: Array<stockInput>): Array<singleStockInfo> {
+    return inputs.map(holding => {
+        return capital_and_risk_calcs.createSingleStockInfo(holding.ticker, holding.shares_owned)
+    })
 }
 
 function capitalTotal(portfolio: Array<singleStockInfo>): number {
@@ -67,8 +78,6 @@ function riskShare(ticker: string, portfolio: Array<singleStockInfo>) {
 
     return target_risk / risk
 }
-
-
 
 const capital_and_risk_calcs = {
     capitalInvested: capitalInvested,
