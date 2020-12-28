@@ -74,8 +74,8 @@ test('It handles partial shares: calculates 10.5 shares at $10.00 to be $105.0',
 test('Creates stock info object from submitted holdings', async() => {
     expect(
         await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
-        .then(result => { return result })
-        .catch(error => { return error })
+        .then(result => result)
+        .catch(error => error)
     ).toStrictEqual({
         ticker: 'tsla',
         last_price_dollars: 661.77,
@@ -89,6 +89,8 @@ test('Creates stock info object from submitted holdings', async() => {
 test('Creates stock info objects for an array of submitted holdings', async() => {
     expect(
         await capital_and_risk_calcs.createStockInfoForHoldings(test_submitted_info_array)
+        .then(result => result)
+        .catch(error => error)
     ).toStrictEqual(test_portfolio_enriched)
 })
 

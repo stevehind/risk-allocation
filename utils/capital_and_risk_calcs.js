@@ -6,11 +6,13 @@ function createSingleStockInfo(submitted_holding) {
     return new Promise(function (resolve, reject) {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
             .then(function (response) {
+            console.log("stock_info_repsonse: %o", response);
             if (response.success) {
                 var holding_info = response.data;
                 var capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned);
                 holding_info.shares_owned = submitted_holding.shares_owned;
                 holding_info.capital_invested = capital_invested;
+                console.log("holding_info: %o", holding_info);
                 return resolve(holding_info);
             }
         })["catch"](function (err) { return reject(console.error(err)); });

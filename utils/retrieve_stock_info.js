@@ -10,6 +10,7 @@ function retrieveStockInfo(ticker) {
         axios.get(scrape_target_url)
             .then(function (response) {
             var response_html = response.data;
+            console.log(response_html);
             var $ = cheerio.load(response_html);
             // Get the option-implied vol
             var target_div = $('#below-chart-text');

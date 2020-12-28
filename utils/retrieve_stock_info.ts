@@ -36,6 +36,7 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
         .then(response => {
             let response_html = response.data
 
+            console.log(response_html);
             const $ = cheerio.load(response_html);
             
             // Get the option-implied vol

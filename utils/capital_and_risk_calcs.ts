@@ -24,13 +24,16 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
     return new Promise((resolve, reject) => {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
         .then(response => {
+            console.log("stock_info_repsonse: %o", response);
+
             if (response.success) {
                 let holding_info = response.data
                 let capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned )
     
                 holding_info.shares_owned = submitted_holding.shares_owned;
                 holding_info.capital_invested = capital_invested;
-    
+                
+                console.log("holding_info: %o", holding_info);
                 return resolve(holding_info);
             }
         })
@@ -41,7 +44,7 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
 function createStockInfoForHoldings(submitted_holdings: Array<submittedHolding>): Array<Promise<singleStockInfo>> {    
     return submitted_holdings.map(submitted_holding => new Promise((resolve, reject) => {
         console.log("submitted_holding: %o", submitted_holding)
-        
+
         return capital_and_risk_calcs.createSingleStockInfo(submitted_holding)
         .then(result => {
             console.log("result: %o", result)
