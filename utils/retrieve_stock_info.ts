@@ -2,6 +2,8 @@ import { ModuleResolutionKind } from "typescript"
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+const sanitize_stock_ticker = require('./sanitize_stock_ticker')
+
 interface stockInfoObject {
     ticker: string;
     last_price_dollars: number;
@@ -23,32 +25,10 @@ interface stockInfoScrapeResult {
     };
 }
 
-function sanitizeStockTicker(ticker: string): string {
-    let ticker_as_string = ticker.toString();
-    let ticker_without_spaces = ticker_as_string.replace(/\s+/g, "");
-
-    function removeDollarSigns(ticker: string): string {
-        if (ticker.charAt(0) === '$') {
-            return ticker.substring(1);
-        } else {
-            return ticker;
-        }
-    }
-
-    let ticker_without_dollar_sign = removeDollarSigns(ticker_without_spaces);
-
-    if (ticker_without_dollar_sign.length >= 1 && ticker_without_dollar_sign.length <= 5 ) {
-        return ticker_without_dollar_sign
-    } else {
-        throw new Error( 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.')
-    }
-
-}
-
 function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
 
     return new Promise((resolve, reject) => {
-        let sanitized_sticker:string | Error = retrieve_stock_info.sanitizeStockTicker(ticker)
+        let sanitized_sticker:string | Error = sanitize_stock_ticker.sanitizeStockTicker(ticker)
     
         let scrape_target_url:string  = `https://www.alphaquery.com/stock/${sanitized_sticker}/volatility-option-statistics/180-day/iv-mean`
 
@@ -93,8 +73,7 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
 }
 
 const retrieve_stock_info = {
-    retrieveStockInfo: retrieveStockInfo,
-    sanitizeStockTicker: sanitizeStockTicker
+    retrieveStockInfo: retrieveStockInfo
 };
 
 module.exports = retrieve_stock_info;
