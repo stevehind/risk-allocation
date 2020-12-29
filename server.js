@@ -56,7 +56,6 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
     var submitted_holdings;
     return __generator(this, function (_a) {
         submitted_holdings = req.body.holdings;
-        console.log(submitted_holdings);
         return [2 /*return*/, cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
                 .then(function (enriched_holdings) {
                 return cap_risk_calcs.createPortfolio(enriched_holdings);
