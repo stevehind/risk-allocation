@@ -2,8 +2,8 @@ const retrieve_stock_info = require('./retrieve_stock_info')
 
 interface singleStockInfo {
     enriched: boolean;
-    portfolio: boolean;
     ticker: string;
+    portfolio?: boolean;
     last_price_dollars?: number;
     opt_imp_vol_180d_pct?: number;
     shares_owned?: number;
@@ -95,13 +95,13 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
                 enriched_holding.shares_owned = submitted_holding.shares_owned;
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
                 return resolve(enriched_holding)
+            } else {
+                let unenriched_holding: singleStockInfo = response.data
+                unenriched_holding.enriched = false;
+                return resolve(unenriched_holding)
             }
         })
-        .catch(err => reject({
-            ticker: submitted_holding.ticker,
-            enriched: false,
-            error_message: err
-        }))
+        .catch(err => console.error(err))
     })
 }
 

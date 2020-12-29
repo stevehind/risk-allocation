@@ -17,17 +17,13 @@ test('Sanitizes a ticker with spaces', () => {
 })
 
 test('Throws an error if ticker >5 chars', () => {
-    expect(() => {
-        sanitize_stock_ticker.sanitizeStockTicker('tslala');
-    }).toThrowError(sanitizeErrorMsg)
+    expect(sanitize_stock_ticker.sanitizeStockTicker('tslala')).toBe(sanitizeErrorMsg)
 })
 
 test('Throws an error if ticker <1 chars', () => {
-    expect(() => {
-        sanitize_stock_ticker.sanitizeStockTicker('');
-    }).toThrowError(sanitizeErrorMsg)
+    expect(sanitize_stock_ticker.sanitizeStockTicker('')).toBe(sanitizeErrorMsg)
 })
 
 test('Applies length check only after removing $ and spaces', () => {
-    expect(sanitize_stock_ticker.sanitizeStockTicker('$  tsla')).toBe('tsla')
+    expect(sanitize_stock_ticker.sanitizeStockTicker('$ ts la')).toBe('tsla')
 })

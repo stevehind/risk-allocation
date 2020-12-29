@@ -14,6 +14,8 @@ interface scrapeFailure {
     message: string;
 }
 
+type scrapeResult = number | scrapeFailure
+
 interface stockInfoScrapeResult {
     success: boolean;
     data: {
@@ -45,7 +47,11 @@ function scrapeStockPrice(ticker: string): Promise<number> {
 
             return resolve(last_child_number)
         })
-        .catch(err => reject(console.error(err)))
+        .catch(err => {
+            return reject({
+                message: err.message
+            })
+        })
     })
 }
 
@@ -68,8 +74,11 @@ function scrapeOptImpVol(ticker: string): Promise<number> {
 
             return resolve(opt_imp_vol_180d_pct)
         })
-        .catch(err => reject(console.error(err)))
-
+        .catch(err => {
+            return reject({
+                message: err.message
+            })
+        })
     })
 }
 
@@ -94,11 +103,9 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
             })
         })
         .catch((error) => {
-            return reject({
+            return resolve({
                 success: false,
-                data: {
-                    message: error
-                }
+                data: error
             })
         })
     })

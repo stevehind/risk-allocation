@@ -3,10 +3,16 @@
  */
 
 const { TestScheduler } = require('jest')
+const { JsxEmit } = require('typescript')
 const capital_and_risk_calcs = require('../../utils/capital_and_risk_calcs')
 
 const test_submitted_info_single = {
     ticker: 'tsla',
+    shares_owned: 10
+}
+
+const test_submitted_info_single_invalid_ticker = {
+    ticker: 'tslala',
     shares_owned: 10
 }
 
@@ -256,21 +262,30 @@ test('Creates stock info object from submitted holdings', async() => {
     ).toStrictEqual(tsla_stock_info)
 })
 
-// Test createStockInfoFromHoldings
-test('Creates stock info objects for an array of submitted holdings', async() => {
-    expect(
-        await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(test_stock_info_result_array)
+test('fails to create stock info object from submitted holdings with invalid ticker', async() => {
+    await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single_invalid_ticker)
+    .then(result => {
+        expect(result).toBe('foo')
+    })
+    .finally(() => done());
 })
 
-test('gracefully handles one element of submitted portfolio being invalid', async() => {
-    expect(
-        await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array_with_invalid_ticker)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(test_stock_info_result_array_handling_errors)
+
+// Test createStockInfoFromHoldings
+test('Creates stock info objects for an array of submitted holdings', async(done) => {
+    await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array)
+    .then(result => {
+        expect(result).toStrictEqual(test_stock_info_result_array)
+    })
+    .finally(() => done());
+})
+
+test('it gracefully handles one element of submitted portfolio being invalid', async(done) => {
+    await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array_with_invalid_ticker)
+    .then(result => {
+        expect(result).toStrictEqual(test_stock_info_result_array_handling_errors)
+    })
+    .finally(() => done());
 })
 
 // Test create portfolio

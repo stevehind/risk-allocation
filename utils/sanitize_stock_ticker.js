@@ -14,7 +14,7 @@ function sanitizeStockTicker(ticker) {
         return ticker_without_dollar_sign;
     }
     else {
-        throw new Error('This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.');
+        return 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.';
     }
 }
 var sanitize_stock_ticker = {

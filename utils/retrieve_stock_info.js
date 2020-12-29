@@ -18,7 +18,11 @@ function scrapeStockPrice(ticker) {
             var last_child_text = last_child.text();
             var last_child_number = parseFloat(last_child_text);
             return resolve(last_child_number);
-        })["catch"](function (err) { return reject(console.error(err)); });
+        })["catch"](function (err) {
+            return reject({
+                message: err.message
+            });
+        });
     });
 }
 function scrapeOptImpVol(ticker) {
@@ -35,7 +39,11 @@ function scrapeOptImpVol(ticker) {
             var option_implied_vol_string = further_child.text();
             var opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
             return resolve(opt_imp_vol_180d_pct);
-        })["catch"](function (err) { return reject(console.error(err)); });
+        })["catch"](function (err) {
+            return reject({
+                message: err.message
+            });
+        });
     });
 }
 function retrieveStockInfo(ticker) {
@@ -57,11 +65,9 @@ function retrieveStockInfo(ticker) {
                 }
             });
         })["catch"](function (error) {
-            return reject({
+            return resolve({
                 success: false,
-                data: {
-                    message: error
-                }
+                data: error
             });
         });
     });
