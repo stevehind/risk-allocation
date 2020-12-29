@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/submit_holdings', (req, res) => {
-    return res.status(200).message('POST to this route only.')
+    return res.status(200).json({ messsage: 'POST to this route only.' })
 })
 
 app.post('/submit_holdings', async(req, res) => {
