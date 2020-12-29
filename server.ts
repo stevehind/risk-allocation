@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'server running.'})
 })
 
-app.get('./submit_holdings', (req, res) => {
+app.get('/submit_holdings', (req, res) => {
     return res.status(200).message('POST to this route only.')
 })
 
