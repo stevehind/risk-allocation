@@ -11,11 +11,21 @@ const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers sho
 const tsla_response = {
     success: true,
     data: {
-        last_price_dollars: 661.77,
-        opt_imp_vol_180d_pct: 0.6536,
+        last_price_dollars: 663.69,
+        opt_imp_vol_180d_pct: 0.6549,
         ticker: "tsla"
     }
 }
+
+test('scrapes stock price', () => {
+    return retrieve_stock_info.scrapeStockPrice('tsla')
+    .then(result => expect(result).toStrictEqual(tsla_response.data.last_price_dollars))
+})
+
+test('scrapes imp vol', () => {
+    return retrieve_stock_info.scrapeOptImpVol('tsla')
+    .then(result => expect(result).toStrictEqual(tsla_response.data.opt_imp_vol_180d_pct))
+})
 
 // Tests for retrieveStockInfo
 //TODO: function should be returning an object with this message within it, rather than just throwing the error

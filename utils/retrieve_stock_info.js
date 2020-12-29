@@ -3,45 +3,72 @@ exports.__esModule = true;
 var axios = require('axios');
 var cheerio = require('cheerio');
 var sanitize_stock_ticker = require('./sanitize_stock_ticker');
-function retrieveStockInfo(ticker) {
+function scrapeStockPrice(ticker) {
     return new Promise(function (resolve, reject) {
-        var sanitized_sticker = sanitize_stock_ticker.sanitizeStockTicker(ticker);
-        var scrape_target_url = "https://www.alphaquery.com/stock/" + sanitized_sticker + "/volatility-option-statistics/180-day/iv-mean";
+        var scrape_target_url = "https://www.alphaquery.com/stock/" + ticker + "/all-data-variables";
         axios.get(scrape_target_url)
             .then(function (response) {
             var response_html = response.data;
-            console.log(response_html);
             var $ = cheerio.load(response_html);
-            // Get the option-implied vol
-            var target_div = $('#below-chart-text');
-            var target_p = target_div.children().last();
-            var p_string = target_p.text();
-            var search_term = "Implied Volatility (Mean) of ";
-            var substring_result = p_string.substring(p_string.indexOf(search_term));
-            var option_implied_vol_string = substring_result.substring(substring_result.indexOf("0"), substring_result.indexOf("0") + 6);
+            var target = $('a[name="Recent Price/Volume"]');
+            var first_parent = target.parent();
+            var second_parent = first_parent.parent();
+            var next_sibling = second_parent.next();
+            var last_child = next_sibling.children('.text-right');
+            var last_child_text = last_child.text();
+            var last_child_number = parseFloat(last_child_text);
+            return resolve(last_child_number);
+        })["catch"](function (err) { return reject(console.error(err)); });
+    });
+}
+function scrapeOptImpVol(ticker) {
+    return new Promise(function (resolve, reject) {
+        var scrape_target_url = "https://www.alphaquery.com/stock/" + ticker + "/volatility-option-statistics/180-day/historical-volatility";
+        axios.get(scrape_target_url)
+            .then(function (response) {
+            var response_html = response.data;
+            var $ = cheerio.load(response_html);
+            var target = $('#indicator-iv-mean');
+            var child = target.children('.indicator-figure');
+            var next_child = child.children('a');
+            var further_child = next_child.children('.indicator-figure-inner');
+            var option_implied_vol_string = further_child.text();
             var opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
-            // Get the last stock price
-            var last_price_string = $('#quote-price-container').text();
-            var last_price_dollars = parseFloat(last_price_string);
+            return resolve(opt_imp_vol_180d_pct);
+        })["catch"](function (err) { return reject(console.error(err)); });
+    });
+}
+function retrieveStockInfo(ticker) {
+    return new Promise(function (resolve, reject) {
+        var sanitized_ticker = sanitize_stock_ticker.sanitizeStockTicker(ticker);
+        return retrieve_stock_info.scrapeStockPrice(sanitized_ticker)
+            .then(function (price) { return Promise.all([
+            price,
+            retrieve_stock_info.scrapeOptImpVol(sanitized_ticker)
+        ]); })
+            .then(function (_a) {
+            var price = _a[0], vol = _a[1];
             return resolve({
                 success: true,
                 data: {
-                    ticker: ticker,
-                    last_price_dollars: last_price_dollars,
-                    opt_imp_vol_180d_pct: opt_imp_vol_180d_pct
+                    ticker: sanitized_ticker,
+                    last_price_dollars: price,
+                    opt_imp_vol_180d_pct: vol
                 }
             });
-        })["catch"](function (err) {
+        })["catch"](function (error) {
             return reject({
                 success: false,
                 data: {
-                    message: err
+                    message: error
                 }
             });
         });
     });
 }
 var retrieve_stock_info = {
+    scrapeStockPrice: scrapeStockPrice,
+    scrapeOptImpVol: scrapeOptImpVol,
     retrieveStockInfo: retrieveStockInfo
 };
 module.exports = retrieve_stock_info;

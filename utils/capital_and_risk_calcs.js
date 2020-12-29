@@ -6,29 +6,20 @@ function createSingleStockInfo(submitted_holding) {
     return new Promise(function (resolve, reject) {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
             .then(function (response) {
-            console.log("stock_info_repsonse: %o", response);
             if (response.success) {
                 var holding_info = response.data;
                 var capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned);
                 holding_info.shares_owned = submitted_holding.shares_owned;
                 holding_info.capital_invested = capital_invested;
-                console.log("holding_info: %o", holding_info);
                 return resolve(holding_info);
             }
         })["catch"](function (err) { return reject(console.error(err)); });
     });
 }
-function createStockInfoForHoldings(submitted_holdings) {
+function createStockInfoFromHoldings(submitted_holdings) {
     return submitted_holdings.map(function (submitted_holding) { return new Promise(function (resolve, reject) {
-        console.log("submitted_holding: %o", submitted_holding);
         return capital_and_risk_calcs.createSingleStockInfo(submitted_holding)
-            .then(function (result) {
-            console.log("result: %o", result);
-            return resolve(result);
-        })["catch"](function (error) {
-            console.log("error: %o", error);
-            return reject(error);
-        });
+            .then(function (result) { return resolve(result); })["catch"](function (error) { return reject(error); });
     }); });
 }
 // async function createPortfolio(submitted_holding: Array<submittedHolding>): Array<singleStockInfo> {
@@ -74,7 +65,7 @@ function riskShare(ticker, portfolio) {
 var capital_and_risk_calcs = {
     capitalInvested: capitalInvested,
     createSingleStockInfo: createSingleStockInfo,
-    createStockInfoForHoldings: createStockInfoForHoldings,
+    createStockInfoFromHoldings: createStockInfoFromHoldings,
     //createPortfolio: createPortfolio,
     capitalTotal: capitalTotal,
     capitalShare: capitalShare,

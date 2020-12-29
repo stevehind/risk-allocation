@@ -25,55 +25,88 @@ interface stockInfoScrapeResult {
     };
 }
 
-function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
-
+function scrapeStockPrice(ticker: string): Promise<number> {
     return new Promise((resolve, reject) => {
-        let sanitized_sticker:string | Error = sanitize_stock_ticker.sanitizeStockTicker(ticker)
-    
-        let scrape_target_url:string  = `https://www.alphaquery.com/stock/${sanitized_sticker}/volatility-option-statistics/180-day/iv-mean`
+        let scrape_target_url = `https://www.alphaquery.com/stock/${ticker}/all-data-variables`
+        
+        axios.get(scrape_target_url)
+        .then(response => {
+            let response_html = response.data;
+
+            const $ = cheerio.load(response_html)
+
+            let target = $('a[name="Recent Price/Volume"]')
+            let first_parent = target.parent();
+            let second_parent = first_parent.parent();
+            let next_sibling = second_parent.next();
+            let last_child = next_sibling.children('.text-right');
+            let last_child_text = last_child.text();
+            let last_child_number = parseFloat(last_child_text)
+
+            return resolve(last_child_number)
+        })
+        .catch(err => reject(console.error(err)))
+    })
+}
+
+function scrapeOptImpVol(ticker: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        let scrape_target_url = `https://www.alphaquery.com/stock/${ticker}/volatility-option-statistics/180-day/historical-volatility`
 
         axios.get(scrape_target_url)
         .then(response => {
-            let response_html = response.data
+            let response_html = response.data;
 
-            console.log(response_html);
-            const $ = cheerio.load(response_html);
-            
-            // Get the option-implied vol
-            let target_div = $('#below-chart-text');
-            let target_p = target_div.children().last();
-            let p_string = target_p.text();
-            let search_term = "Implied Volatility (Mean) of ";
-            let substring_result = p_string.substring(p_string.indexOf(search_term))
-            let option_implied_vol_string = substring_result.substring(substring_result.indexOf("0"),substring_result.indexOf("0") + 6)
+            const $ = cheerio.load(response_html)
+
+            let target = $('#indicator-iv-mean');
+            let child  = target.children('.indicator-figure');
+            let next_child = child.children('a');
+            let further_child = next_child.children('.indicator-figure-inner');
+            let option_implied_vol_string = further_child.text();
             let opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
 
-            // Get the last stock price
-            let last_price_string = $('#quote-price-container').text();
-            let last_price_dollars = parseFloat(last_price_string)
+            return resolve(opt_imp_vol_180d_pct)
+        })
+        .catch(err => reject(console.error(err)))
 
+    })
+}
+
+function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
+
+    return new Promise((resolve, reject) => {
+        let sanitized_ticker:string = sanitize_stock_ticker.sanitizeStockTicker(ticker)
+
+        return retrieve_stock_info.scrapeStockPrice(sanitized_ticker)
+        .then((price) => Promise.all([
+            price,
+            retrieve_stock_info.scrapeOptImpVol(sanitized_ticker)
+        ]))
+        .then(([price, vol]) => {
             return resolve({
                 success: true,
                 data: {
-                    ticker: ticker,
-                    last_price_dollars: last_price_dollars,
-                    opt_imp_vol_180d_pct: opt_imp_vol_180d_pct
+                    ticker: sanitized_ticker,
+                    last_price_dollars: price,
+                    opt_imp_vol_180d_pct: vol
                 }
-            });
+            })
         })
-        //TODO: error from input isn't adhering to this format
-        .catch(err => {
+        .catch((error) => {
             return reject({
                 success: false,
                 data: {
-                    message: err
+                    message: error
                 }
-            });
+            })
         })
     })
 }
 
 const retrieve_stock_info = {
+    scrapeStockPrice: scrapeStockPrice,
+    scrapeOptImpVol: scrapeOptImpVol,
     retrieveStockInfo: retrieveStockInfo
 };
 

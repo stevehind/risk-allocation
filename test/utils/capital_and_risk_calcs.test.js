@@ -61,6 +61,14 @@ const test_portfolio_enriched = [
     }
 ]
 
+const tsla_stock_info = {
+    ticker: 'tsla',
+    last_price_dollars: 663.69,
+    opt_imp_vol_180d_pct: 0.6549,
+    shares_owned: 10,
+    capital_invested: 6636.900000000001
+}
+
 // Test capitalInvested
 test('It calculates 10 shares at $10.00 to be $100.00', () => {
     expect(capital_and_risk_calcs.capitalInvested(10, 10.0)).toBe(100.0)
@@ -76,22 +84,13 @@ test('Creates stock info object from submitted holdings', async() => {
         await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
         .then(result => result)
         .catch(error => error)
-    ).toStrictEqual({
-        ticker: 'tsla',
-        last_price_dollars: 661.77,
-        opt_imp_vol_180d_pct: 0.6536,
-        shares_owned: 10,
-        capital_invested: 6617.70
-    })
+    ).toStrictEqual(tsla_stock_info)
 })
 
 // Test createStockInfoForHoldings
-test('Creates stock info objects for an array of submitted holdings', async() => {
-    expect(
-        await capital_and_risk_calcs.createStockInfoForHoldings(test_submitted_info_array)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(test_portfolio_enriched)
+test('Creates stock info objects for an array of submitted holdings', () => {
+    expect(capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array))
+    .toStrictEqual(test_portfolio_enriched)
 })
 
 // // Test create portfolio
