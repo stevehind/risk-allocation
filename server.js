@@ -52,7 +52,7 @@ app.use(bodyParser.json());
 app.get('/', function (req, res) {
     res.status(200).json({ message: 'server running.' });
 });
-app.get('./submit_holdings', function (req, res) {
+app.get('/submit_holdings', function (req, res) {
     return res.status(200).message('POST to this route only.');
 });
 app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
