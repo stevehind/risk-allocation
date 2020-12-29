@@ -47,6 +47,7 @@ app.get('./submit_holdings', (req, res) => {
 
 app.post('/submit_holdings', async(req, res) => {
     let submitted_holdings: Array<submittedHolding> = req.body.holdings
+    console.log(submitted_holdings);
 
     return cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
     .then(enriched_holdings => {

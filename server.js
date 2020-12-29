@@ -52,10 +52,14 @@ app.use(bodyParser.json());
 app.get('/', function (req, res) {
     res.status(200).json({ message: 'server running.' });
 });
+app.get('./submit_holdings', function (req, res) {
+    return res.status(200).message('POST to this route only.');
+});
 app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var submitted_holdings;
     return __generator(this, function (_a) {
         submitted_holdings = req.body.holdings;
+        console.log(submitted_holdings);
         return [2 /*return*/, cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
                 .then(function (enriched_holdings) {
                 return cap_risk_calcs.createPortfolio(enriched_holdings);

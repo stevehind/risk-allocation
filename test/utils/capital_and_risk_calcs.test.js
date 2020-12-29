@@ -28,7 +28,8 @@ const test_stock_info_array = [
         last_price_dollars: 663.69,
         opt_imp_vol_180d_pct: 0.6549,
         shares_owned: 10,
-        ticker: "tsla"
+        ticker: "tsla",
+        portfolio: false
     },
     {
         capital_invested: 2770,
@@ -36,7 +37,8 @@ const test_stock_info_array = [
         last_price_dollars: 277,
         opt_imp_vol_180d_pct: 0.3658,
         shares_owned: 10,
-        ticker: "fb"
+        ticker: "fb",
+        portfolio: false
     }
 ]
 
@@ -66,7 +68,8 @@ const test_portfolio_enriched = [
         capital_invested: 50.0,
         capital_share: 0.25,
         risk_share: 0.40,
-        one_sigma_risk: 25
+        one_sigma_risk: 25,
+        portfolio: true
     },
     {
         ticker: 'fb',
@@ -76,7 +79,8 @@ const test_portfolio_enriched = [
         capital_invested: 150.0,
         capital_share: 0.75,
         risk_share: 0.60,
-        one_sigma_risk: 37.5
+        one_sigma_risk: 37.5,
+        portfolio: true
     }
 ]
 
@@ -86,7 +90,8 @@ const tsla_stock_info = {
     opt_imp_vol_180d_pct: 0.6549,
     shares_owned: 10,
     capital_invested: 6636.900000000001,
-    enriched: true
+    enriched: true,
+    portfolio: false
 }
 
 // Test capitalInvested
