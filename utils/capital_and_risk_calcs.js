@@ -35,23 +35,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var retrieve_stock_info = require('./retrieve_stock_info');
-function capitalInvested(share_price, number_of_shares) {
-    return share_price * number_of_shares;
+function capitalInvested(stock_info) {
+    if (stock_info.enriched) {
+        return stock_info.last_price_dollars * stock_info.shares_owned;
+    }
+    return 0;
+}
+function capitalTotal(portfolio) {
+    var capital_per_holding = portfolio.map(function (holding) {
+        return holding.capital_invested;
+    });
+    var capital_per_holding_less_NaNs = capital_per_holding.filter(function (value) {
+        if (isNaN(value)) {
+            return 0;
+        }
+        else {
+            return value;
+        }
+    });
+    return capital_per_holding_less_NaNs.reduce(function (r, d) { return r + d; }, 0);
+}
+function capitalShare(ticker, portfolio) {
+    var total_capital = capital_and_risk_calcs.capitalTotal(portfolio);
+    // this doesn't handle the edge case where the same stock ticker is provided twice in the array
+    var holding = portfolio.filter(function (stock) { return stock.ticker === ticker; })[0];
+    if ((holding.enriched) && (holding.capital_invested != 0)) {
+        var capital_invested = holding.capital_invested;
+        return capital_invested / total_capital;
+    }
+    else {
+        return 0;
+    }
+}
+function oneSigmaRiskDollars(stock) {
+    if (stock.enriched) {
+        return stock.opt_imp_vol_180d_pct * stock.capital_invested;
+    }
+    else {
+        return 0;
+    }
+}
+function riskTotal(portfolio) {
+    var stock_risks = portfolio.map(function (stock) {
+        return capital_and_risk_calcs.oneSigmaRiskDollars(stock);
+    });
+    return stock_risks.reduce(function (a, b) { return a + b; }, 0);
+}
+function riskShare(ticker, portfolio) {
+    var total_risk = capital_and_risk_calcs.riskTotal(portfolio);
+    var holding = portfolio.filter(function (stock) { return stock.ticker === ticker; });
+    var holding_risk = capital_and_risk_calcs.oneSigmaRiskDollars(holding[0]);
+    return holding_risk / total_risk;
 }
 function createSingleStockInfo(submitted_holding) {
     return new Promise(function (resolve, reject) {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
             .then(function (response) {
             if (response.success) {
-                var holding_info = response.data;
-                var capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned);
-                holding_info.shares_owned = submitted_holding.shares_owned;
-                holding_info.capital_invested = capital_invested;
-                holding_info.enriched = true;
-                holding_info.portfolio = false;
-                return resolve(holding_info);
+                var enriched_holding = response.data;
+                enriched_holding.enriched = true;
+                enriched_holding.portfolio = false;
+                enriched_holding.shares_owned = submitted_holding.shares_owned;
+                enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding);
+                return resolve(enriched_holding);
             }
         })["catch"](function (err) { return reject({
+            ticker: submitted_holding.ticker,
             enriched: false,
             error_message: err
         }); });
@@ -71,39 +120,20 @@ function createStockInfoFromHoldings(submitted_holdings) {
 }
 function createPortfolio(stock_array) {
     return stock_array.map(function (stock) {
-        var capital_share = capital_and_risk_calcs.capitalShare(stock.ticker, stock_array);
-        stock.capital_share = capital_share;
-        var one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(stock);
-        stock.one_sigma_risk = one_sigma_risk;
-        var risk_share = capital_and_risk_calcs.riskShare(stock.ticker, stock_array);
-        stock.risk_share = risk_share;
-        stock.portfolio = true;
-        return stock;
+        if (stock.enriched) {
+            var capital_share = capital_and_risk_calcs.capitalShare(stock.ticker, stock_array);
+            stock.capital_share = capital_share;
+            var one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(stock);
+            stock.one_sigma_risk = one_sigma_risk;
+            var risk_share = capital_and_risk_calcs.riskShare(stock.ticker, stock_array);
+            stock.risk_share = risk_share;
+            stock.portfolio = true;
+            return stock;
+        }
+        else {
+            return stock;
+        }
     });
-}
-function capitalTotal(portfolio) {
-    return portfolio.reduce(function (r, d) { return r + d.capital_invested; }, 0);
-}
-function capitalShare(ticker, portfolio) {
-    var capital = capital_and_risk_calcs.capitalTotal(portfolio);
-    var target_stock = portfolio.filter(function (stock) { return stock.ticker === ticker; });
-    var target_capital = target_stock[0].capital_invested;
-    return target_capital / capital;
-}
-function oneSigmaRiskDollars(stock) {
-    return stock.opt_imp_vol_180d_pct * stock.capital_invested;
-}
-function riskTotal(portfolio) {
-    var stock_risks = portfolio.map(function (stock) {
-        return capital_and_risk_calcs.oneSigmaRiskDollars(stock);
-    });
-    return stock_risks.reduce(function (a, b) { return a + b; }, 0);
-}
-function riskShare(ticker, portfolio) {
-    var risk = capital_and_risk_calcs.riskTotal(portfolio);
-    var target_stock = portfolio.filter(function (stock) { return stock.ticker === ticker; });
-    var target_risk = capital_and_risk_calcs.oneSigmaRiskDollars(target_stock[0]);
-    return target_risk / risk;
 }
 var capital_and_risk_calcs = {
     capitalInvested: capitalInvested,

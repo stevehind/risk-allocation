@@ -19,29 +19,86 @@ interface submittedHolding {
     shares_owned: number;
 }
 
-function capitalInvested(share_price: number, number_of_shares: number): number {
-    return share_price * number_of_shares
+function capitalInvested(stock_info: singleStockInfo): number {
+    if (stock_info.enriched) {
+        return stock_info.last_price_dollars * stock_info.shares_owned
+    }
+    return 0
+
+}
+
+function capitalTotal(portfolio: Array<singleStockInfo>): number {
+    let capital_per_holding = portfolio.map(holding => {
+        return holding.capital_invested
+    })
+
+    let capital_per_holding_less_NaNs = capital_per_holding.filter(value => {
+        if (isNaN(value)) {
+            return 0
+        } else {
+            return value
+        }
+    })
+    
+    return capital_per_holding_less_NaNs.reduce((r, d) => r + d, 0)
+}
+
+function capitalShare(ticker: string, portfolio: Array<singleStockInfo>): number {
+    let total_capital = capital_and_risk_calcs.capitalTotal(portfolio);
+    // this doesn't handle the edge case where the same stock ticker is provided twice in the array
+    
+    let holding = portfolio.filter(stock => stock.ticker === ticker)[0];
+
+    if ((holding.enriched) && (holding.capital_invested != 0)) {
+        let capital_invested = holding.capital_invested;
+        return capital_invested / total_capital
+    } else {
+        return 0
+    }
+}
+
+function oneSigmaRiskDollars(stock: singleStockInfo): number {
+    if (stock.enriched) {
+        return stock.opt_imp_vol_180d_pct * stock.capital_invested
+    } else {
+        return 0
+    }
+    
+}
+
+function riskTotal(portfolio: Array<singleStockInfo>): number {
+    let stock_risks = portfolio.map(stock => {
+        return capital_and_risk_calcs.oneSigmaRiskDollars(stock)
+    })
+
+    return stock_risks.reduce((a, b) => a + b, 0);
+}
+
+function riskShare(ticker: string, portfolio: Array<singleStockInfo>): number {
+    let total_risk = capital_and_risk_calcs.riskTotal(portfolio);
+
+    let holding = portfolio.filter(stock => stock.ticker === ticker);
+
+    let holding_risk = capital_and_risk_calcs.oneSigmaRiskDollars(holding[0])
+
+    return holding_risk / total_risk
 }
 
 function createSingleStockInfo(submitted_holding: submittedHolding): Promise<singleStockInfo> {
     return new Promise((resolve, reject) => {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
         .then(response => {
-
             if (response.success) {
-                let holding_info = response.data
-
-                let capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned )
-    
-                holding_info.shares_owned = submitted_holding.shares_owned;
-                holding_info.capital_invested = capital_invested;
-                holding_info.enriched = true;
-                holding_info.portfolio = false;
-                
-                return resolve(holding_info);
+                let enriched_holding: singleStockInfo = response.data
+                enriched_holding.enriched = true;
+                enriched_holding.portfolio = false;
+                enriched_holding.shares_owned = submitted_holding.shares_owned;
+                enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
+                return resolve(enriched_holding)
             }
         })
         .catch(err => reject({
+            ticker: submitted_holding.ticker,
             enriched: false,
             error_message: err
         }))
@@ -62,55 +119,24 @@ async function createStockInfoFromHoldings(submitted_holdings: Array<submittedHo
 
 function createPortfolio(stock_array: Array<singleStockInfo>): Array<singleStockInfo> {
     return stock_array.map(stock => {
-        let capital_share = capital_and_risk_calcs.capitalShare(stock.ticker, stock_array);
-        stock.capital_share = capital_share
+        if (stock.enriched) {
+            let capital_share = capital_and_risk_calcs.capitalShare(stock.ticker, stock_array);
+            stock.capital_share = capital_share
+    
+            let one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(stock)
+            stock.one_sigma_risk = one_sigma_risk
+    
+            let risk_share = capital_and_risk_calcs.riskShare(stock.ticker, stock_array)
+            stock.risk_share = risk_share
+    
+            stock.portfolio = true
+    
+            return stock
+        } else {
+            return stock
+        }
 
-        let one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(stock)
-        stock.one_sigma_risk = one_sigma_risk
-
-        let risk_share = capital_and_risk_calcs.riskShare(stock.ticker, stock_array)
-        stock.risk_share = risk_share
-
-        stock.portfolio = true
-
-        return stock
     })
-}
-
-function capitalTotal(portfolio: Array<singleStockInfo>): number {
-    return portfolio.reduce((r, d) => r + d.capital_invested, 0)
-}
-
-function capitalShare(ticker: string, portfolio: Array<singleStockInfo>) {
-    let capital = capital_and_risk_calcs.capitalTotal(portfolio);
-
-    let target_stock = portfolio.filter(stock => stock.ticker === ticker);
-
-    let target_capital = target_stock[0].capital_invested;
-
-    return target_capital / capital;
-}
-
-function oneSigmaRiskDollars(stock: singleStockInfo) {
-    return stock.opt_imp_vol_180d_pct * stock.capital_invested
-}
-
-function riskTotal(portfolio: Array<singleStockInfo>) {
-    let stock_risks = portfolio.map(stock => {
-        return capital_and_risk_calcs.oneSigmaRiskDollars(stock)
-    })
-
-    return stock_risks.reduce((a, b) => a + b, 0);
-}
-
-function riskShare(ticker: string, portfolio: Array<singleStockInfo>) {
-    let risk = capital_and_risk_calcs.riskTotal(portfolio);
-
-    let target_stock = portfolio.filter(stock => stock.ticker === ticker);
-
-    let target_risk = capital_and_risk_calcs.oneSigmaRiskDollars(target_stock[0])
-
-    return target_risk / risk
 }
 
 const capital_and_risk_calcs = {
