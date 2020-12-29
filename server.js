@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+exports.__esModule = true;
 var express = require('express');
 var app = express();
 var port = process.env.port || 3000;
@@ -51,12 +52,18 @@ app.use(bodyParser.json());
 app.get('/', function (req, res) {
     res.status(200).json({ message: 'server running.' });
 });
-app.post('/submit_holdings', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var holdings_object;
+app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var submitted_holdings;
     return __generator(this, function (_a) {
-        holdings_object = req.body;
-        res.status(200).json({ message: 'foobar' });
-        return [2 /*return*/];
+        submitted_holdings = req.body.holdings;
+        console.log(submitted_holdings);
+        return [2 /*return*/, cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
+                .then(function (enriched_holdings) {
+                return cap_risk_calcs.createPortfolio(enriched_holdings);
+            })
+                .then(function (portfolio) {
+                return res.status(200).json(portfolio);
+            })];
     });
 }); });
 // Run the server

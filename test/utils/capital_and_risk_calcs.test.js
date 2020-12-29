@@ -21,6 +21,25 @@ const test_submitted_info_array = [
     }
 ]
 
+const test_stock_info_array = [
+    {
+        capital_invested: 6636.900000000001,
+        enriched: true,
+        last_price_dollars: 663.69,
+        opt_imp_vol_180d_pct: 0.6549,
+        shares_owned: 10,
+        ticker: "tsla"
+    },
+    {
+        capital_invested: 2770,
+        enriched: true,
+        last_price_dollars: 277,
+        opt_imp_vol_180d_pct: 0.3658,
+        shares_owned: 10,
+        ticker: "fb"
+    }
+]
+
 const test_portfolio_unriched = [
     {
         ticker: 'tsla',
@@ -66,7 +85,8 @@ const tsla_stock_info = {
     last_price_dollars: 663.69,
     opt_imp_vol_180d_pct: 0.6549,
     shares_owned: 10,
-    capital_invested: 6636.900000000001
+    capital_invested: 6636.900000000001,
+    enriched: true
 }
 
 // Test capitalInvested
@@ -87,17 +107,19 @@ test('Creates stock info object from submitted holdings', async() => {
     ).toStrictEqual(tsla_stock_info)
 })
 
-// Test createStockInfoForHoldings
-test('Creates stock info objects for an array of submitted holdings', () => {
-    expect(capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array))
-    .toStrictEqual(test_portfolio_enriched)
+// Test createStockInfoFromHoldings
+test('Creates stock info objects for an array of submitted holdings', async() => {
+    expect(
+        await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array)
+        .then(result => result)
+        .catch(error => error)
+    ).toStrictEqual(test_stock_info_array)
 })
 
-// // Test create portfolio
-// test('enriches a portfolio with capital, capital_share and risk_share', () => {
-//     expect(capital_and_risk_calcs.createPortfolio(test_portfolio_unriched))
-//     .toStrictEqual(test_portfolio_enriched)
-// })
+// Test create portfolio
+test('enriches a portfolio with capital, capital_share and risk_share', () => {
+    expect(capital_and_risk_calcs.createPortfolio(test_portfolio_unriched)).toStrictEqual(test_portfolio_enriched)
+})
 
 // Test capitalTotal
 test('calculates total capital in portfolio', () => {

@@ -1,6 +1,8 @@
 const retrieve_stock_info = require('./retrieve_stock_info')
 
 interface singleStockInfo {
+    enriched: boolean;
+    portfolio: boolean;
     ticker: string;
     last_price_dollars?: number;
     opt_imp_vol_180d_pct?: number;
@@ -9,9 +11,10 @@ interface singleStockInfo {
     capital_share?: number;
     one_sigma_risk?: number;
     risk_share?: number;
+    error_message?: string;
 }
 
-interface submittedStockInfo {
+interface submittedHolding {
     ticker: string;
     shares_owned: number;
 }
@@ -27,48 +30,52 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
 
             if (response.success) {
                 let holding_info = response.data
+
                 let capital_invested = capital_and_risk_calcs.capitalInvested(holding_info.last_price_dollars, submitted_holding.shares_owned )
     
                 holding_info.shares_owned = submitted_holding.shares_owned;
                 holding_info.capital_invested = capital_invested;
+                holding_info.enriched = true;
+                holding_info.portfolio = false;
                 
                 return resolve(holding_info);
             }
         })
-        .catch(err => reject(console.error(err)))
+        .catch(err => reject({
+            enriched: false,
+            error_message: err
+        }))
     })
 }
 
-function createStockInfoFromHoldings(submitted_holdings: Array<submittedHolding>): Array<Promise<singleStockInfo>> {    
-    return submitted_holdings.map(submitted_holding => new Promise((resolve, reject) => {
-        return capital_and_risk_calcs.createSingleStockInfo(submitted_holding)
-        .then(result => { return resolve(result) })
-        .catch(error => { return reject(error) })
-    }))
+async function createStockInfoFromHoldings(submitted_holdings: Array<submittedHolding>): Promise<Array<singleStockInfo>> {
+    return Promise.all(
+        submitted_holdings.map(submitted_holding => {
+            return createSingleStockInfo(submitted_holding)
+            .then(result => {
+                return result
+            })
+            .catch(error => error)
+        })
+    )
 }
 
-// async function createPortfolio(submitted_holding: Array<submittedHolding>): Array<singleStockInfo> {
-//     let holdings_with_market_data = await submitted_holding.map(holding => {
-//         return capital_and_risk_calcs.createSingleStockInfo(holding)
-//     })
-    
-//     return holdings_with_market_data.map(holding => {
-        
-//         let capital_invested = capital_and_risk_calcs.capitalInvested(holding.last_price_dollars, holding.shares_owned)
-//         holding.capital_invested = capital_invested
-        
-//         let capital_share = capital_and_risk_calcs.capitalShare(holding.ticker, holdings_with_market_data);
-//         holding.capital_share = capital_share;
+function createPortfolio(stock_array: Array<singleStockInfo>): Array<singleStockInfo> {
+    return stock_array.map(stock => {
+        let capital_share = capital_and_risk_calcs.capitalShare(stock.ticker, stock_array);
+        stock.capital_share = capital_share
 
-//         let one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(holding);
-//         holding.one_sigma_risk = one_sigma_risk;
+        let one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(stock)
+        stock.one_sigma_risk = one_sigma_risk
 
-//         let risk_share = capital_and_risk_calcs.riskShare(holding.ticker, holdings_with_market_data);
-//         holding.risk_share = risk_share;
+        let risk_share = capital_and_risk_calcs.riskShare(stock.ticker, stock_array)
+        stock.risk_share = risk_share
 
-//         return holding
-//     })
-// }
+        stock.portfolio = true
+
+        return stock
+    })
+}
 
 function capitalTotal(portfolio: Array<singleStockInfo>): number {
     return portfolio.reduce((r, d) => r + d.capital_invested, 0)
@@ -110,7 +117,7 @@ const capital_and_risk_calcs = {
     capitalInvested: capitalInvested,
     createSingleStockInfo: createSingleStockInfo,
     createStockInfoFromHoldings: createStockInfoFromHoldings,
-    //createPortfolio: createPortfolio,
+    createPortfolio: createPortfolio,
     capitalTotal: capitalTotal,
     capitalShare: capitalShare,
     oneSigmaRiskDollars: oneSigmaRiskDollars,

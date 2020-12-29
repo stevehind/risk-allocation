@@ -1,3 +1,5 @@
+import { textChangeRangeIsUnchanged } from "typescript"
+
 const express = require('express')
 const app = express()
 const port = process.env.port || 3000
@@ -16,11 +18,13 @@ app.use(
 app.use(bodyParser.json());
 
 interface submittedHolding {
-    ticker: string,
-    shares_owned: number
+    ticker: string;
+    shares_owned: number;
 }
 
 interface singleStockInfo {
+    enriched: boolean;
+    portfolio: boolean;
     ticker: string;
     last_price_dollars?: number;
     opt_imp_vol_180d_pct?: number;
@@ -29,6 +33,7 @@ interface singleStockInfo {
     capital_share?: number;
     one_sigma_risk?: number;
     risk_share?: number;
+    error_message?: string;
 }
 
 // Basic get '/' route
@@ -37,9 +42,15 @@ app.get('/', (req, res) => {
 })
 
 app.post('/submit_holdings', async(req, res) => {
-    let holdings_object = req.body
+    let submitted_holdings: Array<submittedHolding> = req.body.holdings
 
-    res.status(200).json({message: 'foobar'})
+    return cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
+    .then(enriched_holdings => {
+        return cap_risk_calcs.createPortfolio(enriched_holdings)
+    })
+    .then(portfolio => {
+        return res.status(200).json(portfolio)
+    })
 })
 
 // Run the server
