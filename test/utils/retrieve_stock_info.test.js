@@ -11,34 +11,47 @@ const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers sho
 const tsla_response = {
     success: true,
     data: {
-        last_price_dollars: 663.69,
+        last_price_dollars: 665.99,
         opt_imp_vol_180d_pct: 0.6549,
         ticker: "tsla"
     }
 }
 
-test('scrapes stock price', () => {
-    return retrieve_stock_info.scrapeStockPrice('tsla')
-    .then(result => expect(result).toStrictEqual(tsla_response.data.last_price_dollars))
+test('scrapes stock price', async(done) => {
+    await retrieve_stock_info.scrapeStockPrice('tsla')
+    .then(result => {
+        expect(result).toStrictEqual(tsla_response.data.last_price_dollars)  
+    })
+    .finally(() => done());
 })
 
-test('scrapes imp vol', () => {
-    return retrieve_stock_info.scrapeOptImpVol('tsla')
-    .then(result => expect(result).toStrictEqual(tsla_response.data.opt_imp_vol_180d_pct))
+test('scrapes imp vol', async(done) => {
+    await retrieve_stock_info.scrapeOptImpVol('tsla')
+    .then(result => {
+        expect(result).toStrictEqual(tsla_response.data.opt_imp_vol_180d_pct)
+    })
+    .finally(() => done());
 })
 
 // Tests for retrieveStockInfo
 //TODO: function should be returning an object with this message within it, rather than just throwing the error
-test('returns an error for invalid input of tslala', () => {
-    expect.assertions(1);
-    return expect(retrieve_stock_info.retrieveStockInfo('tslala'))
-    .rejects.toEqual(new Error(sanitizeErrorMsg));
+test('returns an error for invalid input of tslala', async(done) => {
+    await retrieve_stock_info.retrieveStockInfo('tslala')
+    .then(result => {
+        expect(result).toStrictEqual({
+            success: false,
+            data: {
+                error_message: sanitizeErrorMsg
+            }
+        })
+    })
+    .finally(() => done());
 }) 
 
-test('shows correct info for $tsla on 2020-12-24', () => {
-    expect.assertions(1);
-    return retrieve_stock_info.retrieveStockInfo('tsla')
+test('shows correct info for $tsla on 2020-12-24', async(done) => {
+    await retrieve_stock_info.retrieveStockInfo('tsla')
     .then(result => {
         expect(result).toStrictEqual(tsla_response)
-    });
+    })
+    .finally(() => done());
 }) 

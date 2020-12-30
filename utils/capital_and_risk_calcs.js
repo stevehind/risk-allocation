@@ -99,11 +99,13 @@ function createSingleStockInfo(submitted_holding) {
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding);
                 return resolve(enriched_holding);
             }
-        })["catch"](function (err) { return reject({
-            ticker: submitted_holding.ticker,
-            enriched: false,
-            error_message: err
-        }); });
+            else {
+                var unenriched_holding = response.data;
+                unenriched_holding.ticker = submitted_holding.ticker;
+                unenriched_holding.enriched = false;
+                return resolve(unenriched_holding);
+            }
+        })["catch"](function (err) { return console.error(err); });
     });
 }
 function createStockInfoFromHoldings(submitted_holdings) {

@@ -3,12 +3,47 @@
  */
 
 const { TestScheduler } = require('jest')
+const { JsxEmit } = require('typescript')
 const capital_and_risk_calcs = require('../../utils/capital_and_risk_calcs')
+
+const tsla_stock_info = {
+    ticker: 'tsla',
+    last_price_dollars: 665.99,
+    opt_imp_vol_180d_pct: 0.6549,
+    shares_owned: 10,
+    capital_invested: 6659.9,
+    enriched: true,
+    portfolio: false
+}
+
+const fb_stock_info = {
+    capital_invested: 2767.7999999999997,
+    enriched: true,
+    last_price_dollars: 276.78,
+    opt_imp_vol_180d_pct: 0.3658,
+    shares_owned: 10,
+    ticker: "fb",
+    portfolio: false
+}
 
 const test_submitted_info_single = {
     ticker: 'tsla',
     shares_owned: 10
 }
+
+const test_submitted_info_single_invalid_ticker = {
+    ticker: 'tslala',
+    shares_owned: 10
+}
+
+const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+
+const test_single_stock_info_invalid_ticker = {
+    enriched: false,
+    error_message: sanitizeErrorMsg,
+    ticker: "tslala"
+}
+
 
 const test_stock_info_without_totals = {
     ticker: 'tsla',
@@ -40,15 +75,7 @@ const test_submitted_info_array_with_invalid_ticker = [
 ]
 
 const test_stock_info_array_with_errors = [
-    {
-        capital_invested: 6636.900000000001,
-        enriched: true,
-        last_price_dollars: 663.69,
-        opt_imp_vol_180d_pct: 0.6549,
-        shares_owned: 10,
-        ticker: "tsla",
-        portfolio: false
-    },
+    tsla_stock_info,
     {
         enriched: false,
         shares_owned: 10,
@@ -58,42 +85,16 @@ const test_stock_info_array_with_errors = [
 ]
 
 const test_stock_info_result_array = [
-    {
-        capital_invested: 6636.900000000001,
-        enriched: true,
-        last_price_dollars: 663.69,
-        opt_imp_vol_180d_pct: 0.6549,
-        shares_owned: 10,
-        ticker: "tsla",
-        portfolio: false
-    },
-    {
-        capital_invested: 2770,
-        enriched: true,
-        last_price_dollars: 277,
-        opt_imp_vol_180d_pct: 0.3658,
-        shares_owned: 10,
-        ticker: "fb",
-        portfolio: false
-    }
+    tsla_stock_info,
+    fb_stock_info
 ]
 
-const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
-
 const test_stock_info_result_array_handling_errors = [
-    {
-        capital_invested: 6636.900000000001,
-        enriched: true,
-        last_price_dollars: 663.69,
-        opt_imp_vol_180d_pct: 0.6549,
-        shares_owned: 10,
-        ticker: "tsla",
-        portfolio: false
-    },
+    tsla_stock_info,
     {
         ticker: "tslala",
         enriched: false,
-        error_message: new Error (sanitizeErrorMsg)
+        error_message: sanitizeErrorMsg
     }
 ]
 
@@ -184,16 +185,6 @@ const test_stock_info_array_portfoliod_with_invalid_input = [
     }
 ]
 
-const tsla_stock_info = {
-    ticker: 'tsla',
-    last_price_dollars: 663.69,
-    opt_imp_vol_180d_pct: 0.6549,
-    shares_owned: 10,
-    capital_invested: 6636.900000000001,
-    enriched: true,
-    portfolio: false
-}
-
 // Test capitalInvested
 test('It calculates 10 shares at $10.00 to be $100.00', () => {
     expect(capital_and_risk_calcs.capitalInvested(test_stock_info_without_totals)).toBe(5000.0)
@@ -248,29 +239,42 @@ test("calculates risk as 0 where there is an invalid input", () => {
 })
 
 // Test createSingleStockInfo
-test('Creates stock info object from submitted holdings', async() => {
-    expect(
-        await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(tsla_stock_info)
+test('Creates stock info object from submitted holdings', async(done) => {
+    await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
+    .then(result => {
+        expect(result).toStrictEqual(tsla_stock_info)
+    })
+    .catch(err => console.error(err))
+    .finally(() => done());
 })
+
+test('fails to create stock info object from submitted holdings with invalid ticker', async(done) => {
+    await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single_invalid_ticker)
+    .then(result => {
+        expect(result).toStrictEqual(test_single_stock_info_invalid_ticker)
+    })
+    .catch(err => console.error(err))
+    .finally(() => done());
+})
+
 
 // Test createStockInfoFromHoldings
-test('Creates stock info objects for an array of submitted holdings', async() => {
-    expect(
-        await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(test_stock_info_result_array)
+test('Creates stock info objects for an array of submitted holdings', async(done) => {
+    await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array)
+    .then(result => {
+        expect(result).toStrictEqual(test_stock_info_result_array)
+    })
+    .catch(err => console.error(err))
+    .finally(() => done());
 })
 
-test('gracefully handles one element of submitted portfolio being invalid', async() => {
-    expect(
-        await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array_with_invalid_ticker)
-        .then(result => result)
-        .catch(error => error)
-    ).toStrictEqual(test_stock_info_result_array_handling_errors)
+test('it gracefully handles one element of submitted portfolio being invalid', async(done) => {
+    await capital_and_risk_calcs.createStockInfoFromHoldings(test_submitted_info_array_with_invalid_ticker)
+    .then(result => {
+        expect(result).toStrictEqual(test_stock_info_result_array_handling_errors)
+    })
+    .catch(err => console.error(err))
+    .finally(() => done());
 })
 
 // Test create portfolio

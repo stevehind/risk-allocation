@@ -53,7 +53,7 @@ app.get('/', function (req, res) {
     res.status(200).json({ message: 'server running.' });
 });
 app.get('/submit_holdings', function (req, res) {
-    return res.status(200).message('POST to this route only.');
+    return res.status(200).json({ messsage: 'POST to this route only.' });
 });
 app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var submitted_holdings;
@@ -62,9 +62,11 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
         console.log(submitted_holdings);
         return [2 /*return*/, cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
                 .then(function (enriched_holdings) {
+                console.log("Enriched holdings: %o", enriched_holdings);
                 return cap_risk_calcs.createPortfolio(enriched_holdings);
             })
                 .then(function (portfolio) {
+                console.log("Portfolio: %o", portfolio);
                 return res.status(200).json(portfolio);
             })];
     });
