@@ -4,25 +4,28 @@ const cheerio = require('cheerio');
 
 const sanitize_stock_ticker = require('./sanitize_stock_ticker')
 
-interface stockInfoObject {
+interface singleStockInfo {
+    enriched: boolean;
     ticker: string;
-    last_price_dollars: number;
-    opt_imp_vol_180d_pct: number;
+    portfolio?: boolean;
+    last_price_dollars?: number;
+    opt_imp_vol_180d_pct?: number;
+    shares_owned?: number;
+    capital_invested?: number;
+    capital_share?: number;
+    one_sigma_risk?: number;
+    risk_share?: number;
+    error_message?: string;
 }
 
-interface scrapeFailure {
-    message: string;
+interface stockInfoScrapeSuccessResult {
+    success: boolean;
+    data: singleStockInfo;
 }
 
-type scrapeResult = number | scrapeFailure
-
-interface stockInfoScrapeResult {
+interface stockInfoScrapeFailureResult {
     success: boolean;
     data: {
-        ticker: string;
-        last_price_dollars: number;
-        opt_imp_vol_180d_pct: number;
-    } | {
         message: string
     };
 }
@@ -94,7 +97,7 @@ function scrapeOptImpVol(ticker: string): Promise<number> {
     })
 }
 
-function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
+function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeSuccessResult | stockInfoScrapeFailureResult> {
 
     return new Promise((resolve, reject) => {
         let sanitized_ticker:string = sanitize_stock_ticker.sanitizeStockTicker(ticker)
@@ -105,20 +108,24 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeResult> {
             retrieve_stock_info.scrapeOptImpVol(sanitized_ticker)
         ]))
         .then(([price, vol]) => {
-            return resolve({
+            let success_result: stockInfoScrapeSuccessResult = {
                 success: true,
                 data: {
                     ticker: sanitized_ticker,
                     last_price_dollars: price,
-                    opt_imp_vol_180d_pct: vol
+                    opt_imp_vol_180d_pct: vol,
+                    enriched: true
                 }
-            })
+            }
+            
+            return resolve(success_result)
         })
         .catch((error) => {
-            return resolve({
+            let failure_result: stockInfoScrapeFailureResult = {
                 success: false,
                 data: error
-            })
+            }
+            return resolve(failure_result)
         })
     })
 }
@@ -129,4 +136,4 @@ const retrieve_stock_info = {
     retrieveStockInfo: retrieveStockInfo
 };
 
-module.exports = retrieve_stock_info;
+export default retrieve_stock_info;

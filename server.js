@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var express = require('express');
 var app = express();
-var port = process.env.port || 3000;
+var port = process.env.port || 5000;
 var path = require('path');
 // Import utils
 var cap_risk_calcs = require('./utils/capital_and_risk_calcs');
@@ -72,5 +72,5 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
 }); });
 // Run the server
 app.listen(port, function () {
-    console.log("Server running at http://localhost:" + port);
+    console.log("Listening on " + port);
 });

@@ -1,4 +1,5 @@
-const retrieve_stock_info = require('./retrieve_stock_info')
+import retrieve_stock_info from './retrieve_stock_info'
+
 
 interface singleStockInfo {
     enriched: boolean;
@@ -12,6 +13,18 @@ interface singleStockInfo {
     one_sigma_risk?: number;
     risk_share?: number;
     error_message?: string;
+}
+
+interface stockInfoScrapeSuccessResult {
+    success: boolean;
+    data: singleStockInfo;
+}
+
+interface stockInfoScrapeFailureResult {
+    success: boolean;
+    data: {
+        message: string
+    };
 }
 
 interface submittedHolding {
@@ -87,8 +100,9 @@ function riskShare(ticker: string, portfolio: Array<singleStockInfo>): number {
 function createSingleStockInfo(submitted_holding: submittedHolding): Promise<singleStockInfo> {
     return new Promise((resolve, reject) => {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
-        .then(response => {
+        .then((response: stockInfoScrapeSuccessResult | stockInfoScrapeFailureResult) => {
             if (response.success) {
+                // @ts-ignore
                 let enriched_holding: singleStockInfo = response.data
                 enriched_holding.enriched = true;
                 enriched_holding.portfolio = false;
@@ -96,6 +110,7 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
                 return resolve(enriched_holding)
             } else {
+                // @ts-ignore
                 let unenriched_holding: singleStockInfo = response.data;
                 unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
@@ -152,4 +167,4 @@ const capital_and_risk_calcs = {
     riskShare: riskShare
 };
 
-module.exports = capital_and_risk_calcs;
+export default capital_and_risk_calcs;

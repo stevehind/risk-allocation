@@ -9,7 +9,7 @@ const capital_and_risk_calcs = require('../../utils/capital_and_risk_calcs')
 const tsla_stock_info = {
     ticker: 'tsla',
     last_price_dollars: 665.99,
-    opt_imp_vol_180d_pct: 0.6549,
+    opt_imp_vol_180d_pct: 0.6463,
     shares_owned: 10,
     capital_invested: 6659.9,
     enriched: true,
@@ -20,7 +20,7 @@ const fb_stock_info = {
     capital_invested: 2767.7999999999997,
     enriched: true,
     last_price_dollars: 276.78,
-    opt_imp_vol_180d_pct: 0.3658,
+    opt_imp_vol_180d_pct: 0.3686,
     shares_owned: 10,
     ticker: "fb",
     portfolio: false

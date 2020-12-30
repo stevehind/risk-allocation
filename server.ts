@@ -2,7 +2,7 @@ import { textChangeRangeIsUnchanged } from "typescript"
 
 const express = require('express')
 const app = express()
-const port = process.env.port || 3000
+const port = process.env.port || 5000
 const path = require('path')
 
 // Import utils
@@ -61,5 +61,5 @@ app.post('/submit_holdings', async(req, res) => {
 
 // Run the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`)
+    console.log(`Listening on ${port}`)
 })

@@ -12,7 +12,7 @@ const tsla_response = {
     success: true,
     data: {
         last_price_dollars: 665.99,
-        opt_imp_vol_180d_pct: 0.6549,
+        opt_imp_vol_180d_pct: 0.6463,
         ticker: "tsla"
     }
 }
