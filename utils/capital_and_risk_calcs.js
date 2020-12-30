@@ -101,6 +101,7 @@ function createSingleStockInfo(submitted_holding) {
             }
             else {
                 var unenriched_holding = response.data;
+                unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
                 return resolve(unenriched_holding);
             }

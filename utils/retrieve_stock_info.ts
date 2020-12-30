@@ -48,9 +48,15 @@ function scrapeStockPrice(ticker: string): Promise<number> {
             return resolve(last_child_number)
         })
         .catch(err => {
-            return reject({
-                message: err.message
-            })
+            if (err.message === "Request failed with status code 404") {
+                return reject ({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                })
+            } else {
+                return reject({
+                    error_message: err.message
+                })
+            }
         })
     })
 }
@@ -75,9 +81,15 @@ function scrapeOptImpVol(ticker: string): Promise<number> {
             return resolve(opt_imp_vol_180d_pct)
         })
         .catch(err => {
-            return reject({
-                message: err.message
-            })
+            if (err.message === "Request failed with status code 404") {
+                return reject ({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                })
+            } else {
+                return reject({
+                    error_message: err.message
+                })
+            }
         })
     })
 }

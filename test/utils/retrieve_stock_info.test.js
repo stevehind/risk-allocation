@@ -11,7 +11,7 @@ const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers sho
 const tsla_response = {
     success: true,
     data: {
-        last_price_dollars: 663.69,
+        last_price_dollars: 665.99,
         opt_imp_vol_180d_pct: 0.6549,
         ticker: "tsla"
     }
@@ -41,7 +41,7 @@ test('returns an error for invalid input of tslala', async(done) => {
         expect(result).toStrictEqual({
             success: false,
             data: {
-                message: "Request failed with status code 404"
+                error_message: sanitizeErrorMsg
             }
         })
     })

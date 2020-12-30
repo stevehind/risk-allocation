@@ -96,7 +96,8 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
                 return resolve(enriched_holding)
             } else {
-                let unenriched_holding: singleStockInfo = response.data
+                let unenriched_holding: singleStockInfo = response.data;
+                unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
                 return resolve(unenriched_holding)
             }

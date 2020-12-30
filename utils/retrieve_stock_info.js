@@ -19,9 +19,16 @@ function scrapeStockPrice(ticker) {
             var last_child_number = parseFloat(last_child_text);
             return resolve(last_child_number);
         })["catch"](function (err) {
-            return reject({
-                message: err.message
-            });
+            if (err.message === "Request failed with status code 404") {
+                return reject({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                });
+            }
+            else {
+                return reject({
+                    error_message: err.message
+                });
+            }
         });
     });
 }
@@ -40,9 +47,16 @@ function scrapeOptImpVol(ticker) {
             var opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
             return resolve(opt_imp_vol_180d_pct);
         })["catch"](function (err) {
-            return reject({
-                message: err.message
-            });
+            if (err.message === "Request failed with status code 404") {
+                return reject({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                });
+            }
+            else {
+                return reject({
+                    error_message: err.message
+                });
+            }
         });
     });
 }
