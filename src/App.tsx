@@ -1,12 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import InputTable from './components/InputTable'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        {/* <img src={logo} className="App-logo" alt="logo" /> */}
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
@@ -19,6 +19,11 @@ function App() {
           Learn React
         </a>
       </header>
+      <div className="full-container">
+        <div className="container">
+          <InputTable/>
+        </div>
+      </div>
     </div>
   );
 }
