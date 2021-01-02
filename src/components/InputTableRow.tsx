@@ -1,5 +1,5 @@
 import * as React from 'react';
-const c_and_r_calcs = require('../utils/capital_and_risk_calcs')
+import api from '../api/apiHandlers'
 
 type Submission = {
     ticker: string,
@@ -8,10 +8,14 @@ type Submission = {
 
 type State = {
     submitted: boolean,
-    ticker: string | null,
-    shares_owned: number | null,
+    ticker: string | undefined,
+    shares_owned: number | undefined,
     submission: Submission | undefined,
-    delete: boolean
+    delete: boolean,
+    capital_invested: number | undefined,
+    last_price_dollars: number | undefined,
+    opt_imp_vol_180d_pct: number | undefined,
+    one_sigma_risk: number | undefined
 }
 
 type Props = {
@@ -25,10 +29,14 @@ class InputTableRow extends React.Component<Props, State> {
 
         const state: State = this.state = {
             submitted: false,
-            ticker: null,
-            shares_owned: null,
+            ticker: undefined,
+            shares_owned: undefined,
             submission: undefined,
-            delete: false
+            delete: false,
+            capital_invested: undefined,
+            last_price_dollars: undefined,
+            opt_imp_vol_180d_pct: undefined,
+            one_sigma_risk: undefined
         }
     }
 
@@ -38,7 +46,41 @@ class InputTableRow extends React.Component<Props, State> {
 
         this.setState({
             [name]: value
-        } as any)
+        } as any, () => {
+            let submission = {
+                ticker: this.state.ticker,
+                shares_owned: this.state.shares_owned
+            }      
+            
+            this.setState({
+                submission: submission
+            } as any, () => {
+                if (this.state.submission.ticker && this.state.submission.shares_owned) {
+                    console.log("logging submission: %o", submission)
+
+                    this.setState({
+                        submitted: true
+                    } as any, async() => {
+                        return await api.retrieveStockInfoFromServer(this.state.submission)
+                        .then(res => {
+                            if (res.status === 200) {
+                                this.setState({
+                                    capital_invested: res.data.capital_invested,
+                                    last_price_dollars: res.data.last_price_dollars,
+                                    opt_imp_vol_180d_pct: res.data.opt_imp_vol_180d_pct,
+                                    one_sigma_risk: res.data.one_sigma_risk 
+                                })
+                            }
+                        })
+                        .catch(err => console.log(err))
+                        
+                    })
+                }
+            })
+        })
+
+
+
     }
 
     handleCheckbox = (event: React.SyntheticEvent) => {
@@ -54,25 +96,6 @@ class InputTableRow extends React.Component<Props, State> {
                     this.props.onChange(this.props)
                 }
             })
-        }
-    }
-
-    submit = (event: React.SyntheticEvent) => {
-        event.preventDefault();
-        if(this.state.ticker && this.state.shares_owned) {
-            this.setState({
-                submitted: true,
-                submission: {
-                   ticker: this.state.ticker,
-                   shares_owned: this.state.shares_owned 
-                }
-            }, () => {
-                console.log(
-                    c_and_r_calcs.createSingleStockInfo(this.state.submission)
-                    .then(result => result)
-                    .catch(error => error)
-                )
-            })  
         }
     }
    
@@ -95,26 +118,16 @@ class InputTableRow extends React.Component<Props, State> {
                         onChange={this.handleChange}
                     />
                 </td>
+                <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
+                <td>{ this.state.capital_invested ? this.state.capital_invested : "..." }</td>
+                <td>...</td>
+                <td>{ this.state.opt_imp_vol_180d_pct ? this.state.opt_imp_vol_180d_pct : "..." }</td>
+                <td>{ this.state.one_sigma_risk ? this.state.one_sigma_risk : "..." }</td>
+                <td>...</td>
                 <td>
-                    <button
-                        onClick={this.submit}
-                    >
-                        Get data...
+                    <button>
+                        Delete
                     </button>
-                </td>
-                <td>...</td>
-                <td>...</td>
-                <td>...</td>
-                <td>...</td>
-                <td>...</td>
-                <td>...</td>
-                <td>
-                    <input
-                        type="checkbox"
-                        name="delete"
-                        defaultChecked={false}
-                        onChange={this.handleCheckbox}
-                    />
                 </td>
             </tr>
         )

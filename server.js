@@ -39,15 +39,17 @@ exports.__esModule = true;
 var express = require('express');
 var app = express();
 var port = process.env.port || 5000;
+var cors = require('cors');
 var path = require('path');
 // Import utils
-var cap_risk_calcs = require('./src/utils/capital_and_risk_calcs');
+var capital_and_risk_calcs_1 = require("./src/utils/capital_and_risk_calcs");
 // Bodyparser middleware
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
+app.use(cors());
 // Basic get '/' route
 app.get('/', function (req, res) {
     res.status(200).json({ message: 'server running.' });
@@ -60,9 +62,9 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
     return __generator(this, function (_a) {
         submitted_holdings = req.body.holdings;
         console.log(submitted_holdings);
-        return [2 /*return*/, cap_risk_calcs.createStockInfoFromHoldings(submitted_holdings)
+        return [2 /*return*/, capital_and_risk_calcs_1["default"].createStockInfoFromHoldings(submitted_holdings)
                 .then(function (enriched_holdings) {
-                return cap_risk_calcs.createPortfolio(enriched_holdings);
+                return capital_and_risk_calcs_1["default"].createPortfolio(enriched_holdings);
             })
                 .then(function (portfolio) {
                 console.log("Portfolio: %o", portfolio);
@@ -75,7 +77,7 @@ app.post('/submit_single_holding', function (req, res) { return __awaiter(void 0
     return __generator(this, function (_a) {
         submitted_single_holding = req.body;
         console.log(submitted_single_holding);
-        return [2 /*return*/, cap_risk_calcs.createSingleStockInfo(submitted_single_holding)
+        return [2 /*return*/, capital_and_risk_calcs_1["default"].createSingleStockInfo(submitted_single_holding)
                 .then(function (stock_info) { return res.status(200).json(stock_info); })["catch"](function (err) { return console.error(err); })];
     });
 }); });

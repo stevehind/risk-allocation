@@ -3,10 +3,11 @@ import { textChangeRangeIsUnchanged } from "typescript"
 const express = require('express')
 const app = express()
 const port = process.env.port || 5000
+const cors = require('cors')
 const path = require('path')
 
 // Import utils
-const cap_risk_calcs = require('./src/utils/capital_and_risk_calcs')
+import cap_risk_calcs from './src/utils/capital_and_risk_calcs'
 
 // Bodyparser middleware
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ app.use(
     })
   );
 app.use(bodyParser.json());
+
+app.use(cors());
 
 interface submittedHolding {
     ticker: string;

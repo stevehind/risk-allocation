@@ -108,6 +108,7 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
                 enriched_holding.portfolio = false;
                 enriched_holding.shares_owned = submitted_holding.shares_owned;
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
+                enriched_holding.one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(enriched_holding)
                 return resolve(enriched_holding)
             } else {
                 // @ts-ignore

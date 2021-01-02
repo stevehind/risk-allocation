@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "babel": "^6.23.0",
     "cheerio": "^1.0.0-rc.5",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "nodemon": "^2.0.6",
     "react": "^17.0.1",
@@ -30,10 +31,11 @@
     "test": "jest",
     "compile": "tsc --build tsconfig.json && tsc server.ts",
     "dev": "npm run compile && npm run test",
-    "start-dev": "nodemon server.js",
+    "server-start": "nodemon server.js",
     "client-start": "react-scripts start",
     "client-build": "react-scripts build",
-    "client-eject": "react-scripts eject"
+    "client-eject": "react-scripts eject",
+    "full-dev": "concurrently --kill-others-on-fail \"npm run server-start\" \"npm run client-start\" "
   },
   "devDependencies": {
     "@types/node": "^14.14.16"

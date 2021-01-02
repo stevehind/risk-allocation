@@ -75,7 +75,6 @@ class InputTable extends React.Component<Props, State> {
                         <tr>
                             <th>Stock ticker</th>
                             <th>Number of shares owned</th>
-                            <th></th>
                             <th>Last closing price ($)</th>
                             <th>Capital invested ($k)</th>
                             <th>Share of capital</th>
@@ -89,7 +88,6 @@ class InputTable extends React.Component<Props, State> {
                         <tr>
                             <td>TSLA</td>
                             <td>10</td>
-                            <td></td>
                             <td>600</td>
                             <td>6.0</td>
                             <td>100%</td>
@@ -107,7 +105,6 @@ class InputTable extends React.Component<Props, State> {
                             )
                         }
                         <tr>
-                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
