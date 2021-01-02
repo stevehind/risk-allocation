@@ -6,7 +6,7 @@ const port = process.env.port || 5000
 const path = require('path')
 
 // Import utils
-const cap_risk_calcs = require('./utils/capital_and_risk_calcs')
+const cap_risk_calcs = require('./src/utils/capital_and_risk_calcs')
 
 // Bodyparser middleware
 const bodyParser = require('body-parser');
@@ -57,6 +57,15 @@ app.post('/submit_holdings', async(req, res) => {
         console.log("Portfolio: %o", portfolio)
         return res.status(200).json(portfolio)
     })
+})
+
+app.post('/submit_single_holding', async(req, res) => {
+    let submitted_single_holding: submittedHolding = req.body
+    console.log(submitted_single_holding)
+
+    return cap_risk_calcs.createSingleStockInfo(submitted_single_holding)
+    .then(stock_info => { return res.status(200).json(stock_info) })
+    .catch(err => console.error(err))
 })
 
 // Run the server

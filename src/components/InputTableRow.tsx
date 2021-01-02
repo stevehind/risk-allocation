@@ -1,4 +1,5 @@
 import * as React from 'react';
+const c_and_r_calcs = require('../utils/capital_and_risk_calcs')
 
 type Submission = {
     ticker: string,
@@ -9,11 +10,13 @@ type State = {
     submitted: boolean,
     ticker: string | null,
     shares_owned: number | null,
-    submission: Submission | undefined
+    submission: Submission | undefined,
+    delete: boolean
 }
 
 type Props = {
-
+    index: number,
+    onChange: any
 }
 
 class InputTableRow extends React.Component<Props, State> {
@@ -24,7 +27,8 @@ class InputTableRow extends React.Component<Props, State> {
             submitted: false,
             ticker: null,
             shares_owned: null,
-            submission: undefined
+            submission: undefined,
+            delete: false
         }
     }
 
@@ -35,7 +39,22 @@ class InputTableRow extends React.Component<Props, State> {
         this.setState({
             [name]: value
         } as any)
+    }
 
+    handleCheckbox = (event: React.SyntheticEvent) => {
+        if (this.state.delete) {
+            this.setState({ delete: false }, () => {
+                if (this.props.onChange) {
+                    this.props.onChange(this.props)
+                }
+            })
+        } else {
+            this.setState({ delete: true }, () => {
+                if (this.props.onChange) {
+                    this.props.onChange(this.props)
+                }
+            })
+        }
     }
 
     submit = (event: React.SyntheticEvent) => {
@@ -47,13 +66,19 @@ class InputTableRow extends React.Component<Props, State> {
                    ticker: this.state.ticker,
                    shares_owned: this.state.shares_owned 
                 }
-            })
+            }, () => {
+                console.log(
+                    c_and_r_calcs.createSingleStockInfo(this.state.submission)
+                    .then(result => result)
+                    .catch(error => error)
+                )
+            })  
         }
     }
    
     render() {
         return (
-            <tr>
+            <tr key={this.props.index}>
                 <td>
                     <input
                         type="text"
@@ -83,6 +108,14 @@ class InputTableRow extends React.Component<Props, State> {
                 <td>...</td>
                 <td>...</td>
                 <td>...</td>
+                <td>
+                    <input
+                        type="checkbox"
+                        name="delete"
+                        defaultChecked={false}
+                        onChange={this.handleCheckbox}
+                    />
+                </td>
             </tr>
         )
     }

@@ -41,7 +41,7 @@ var app = express();
 var port = process.env.port || 5000;
 var path = require('path');
 // Import utils
-var cap_risk_calcs = require('./utils/capital_and_risk_calcs');
+var cap_risk_calcs = require('./src/utils/capital_and_risk_calcs');
 // Bodyparser middleware
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
@@ -68,6 +68,15 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
                 console.log("Portfolio: %o", portfolio);
                 return res.status(200).json(portfolio);
             })];
+    });
+}); });
+app.post('/submit_single_holding', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var submitted_single_holding;
+    return __generator(this, function (_a) {
+        submitted_single_holding = req.body;
+        console.log(submitted_single_holding);
+        return [2 /*return*/, cap_risk_calcs.createSingleStockInfo(submitted_single_holding)
+                .then(function (stock_info) { return res.status(200).json(stock_info); })["catch"](function (err) { return console.error(err); })];
     });
 }); });
 // Run the server
