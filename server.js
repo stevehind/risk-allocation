@@ -76,7 +76,6 @@ app.post('/submit_single_holding', function (req, res) { return __awaiter(void 0
     var submitted_single_holding;
     return __generator(this, function (_a) {
         submitted_single_holding = req.body;
-        console.log(submitted_single_holding);
         return [2 /*return*/, capital_and_risk_calcs_1["default"].createSingleStockInfo(submitted_single_holding)
                 .then(function (stock_info) { return res.status(200).json(stock_info); })["catch"](function (err) { return console.error(err); })];
     });

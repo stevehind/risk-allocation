@@ -19,7 +19,12 @@ const retrieveStockInfoFromServer = (submission: submission): singleStockInfo =>
         data: submission
     })
     .then(res => {
-        return res
+        if (res.status === 200) {
+            return res.data
+        } else {
+            console.error(res)
+        }
+        
     })
     .catch(err => console.error(err))
 }

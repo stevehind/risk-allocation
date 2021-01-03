@@ -64,7 +64,6 @@ app.post('/submit_holdings', async(req, res) => {
 
 app.post('/submit_single_holding', async(req, res) => {
     let submitted_single_holding: submittedHolding = req.body
-    console.log(submitted_single_holding)
 
     return cap_risk_calcs.createSingleStockInfo(submitted_single_holding)
     .then(stock_info => { return res.status(200).json(stock_info) })

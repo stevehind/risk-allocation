@@ -12,8 +12,12 @@ var retrieveStockInfoFromServer = function (submission) {
         data: submission
     })
         .then(function (res) {
-        console.log("logging api response: %o", res);
-        return res;
+        if (res.status === 200) {
+            return res.data;
+        }
+        else {
+            console.error(res);
+        }
     })["catch"](function (err) { return console.error(err); });
 };
 var api = {

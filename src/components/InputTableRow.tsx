@@ -7,6 +7,7 @@ type Submission = {
 }
 
 type State = {
+    index: number,
     submitted: boolean,
     ticker: string | undefined,
     shares_owned: number | undefined,
@@ -15,12 +16,16 @@ type State = {
     capital_invested: number | undefined,
     last_price_dollars: number | undefined,
     opt_imp_vol_180d_pct: number | undefined,
-    one_sigma_risk: number | undefined
+    one_sigma_risk: number | undefined,
+    capital_share: number | undefined,
+    risk_share: number | undefined
 }
 
 type Props = {
     index: number,
-    onChange: any
+    onDelete: any,
+    onChange: any,
+    stateFromParent: any
 }
 
 class InputTableRow extends React.Component<Props, State> {
@@ -28,6 +33,7 @@ class InputTableRow extends React.Component<Props, State> {
         super(props);
 
         const state: State = this.state = {
+            index: undefined,
             submitted: false,
             ticker: undefined,
             shares_owned: undefined,
@@ -36,7 +42,18 @@ class InputTableRow extends React.Component<Props, State> {
             capital_invested: undefined,
             last_price_dollars: undefined,
             opt_imp_vol_180d_pct: undefined,
-            one_sigma_risk: undefined
+            one_sigma_risk: undefined,
+            capital_share: undefined,
+            risk_share: undefined
+        }
+    }
+
+    static getDerivedStateFromProps(props) {
+        if (props.stateFromParent) {
+            return {
+                capital_share: props.stateFromParent.holding.capital_share,
+                risk_share: props.stateFromParent.holding.risk_share
+            }
         }
     }
 
@@ -56,21 +73,23 @@ class InputTableRow extends React.Component<Props, State> {
                 submission: submission
             } as any, () => {
                 if (this.state.submission.ticker && this.state.submission.shares_owned) {
-                    console.log("logging submission: %o", submission)
 
                     this.setState({
                         submitted: true
                     } as any, async() => {
                         return await api.retrieveStockInfoFromServer(this.state.submission)
-                        .then(res => {
-                            if (res.status === 200) {
-                                this.setState({
-                                    capital_invested: res.data.capital_invested,
-                                    last_price_dollars: res.data.last_price_dollars,
-                                    opt_imp_vol_180d_pct: res.data.opt_imp_vol_180d_pct,
-                                    one_sigma_risk: res.data.one_sigma_risk 
-                                })
-                            }
+                        .then(data => {
+                            this.setState({
+                                index: this.props.index,
+                                capital_invested: data.capital_invested,
+                                last_price_dollars: data.last_price_dollars,
+                                opt_imp_vol_180d_pct: data.opt_imp_vol_180d_pct,
+                                one_sigma_risk: data.one_sigma_risk 
+                            }, () => {
+                                if (this.props.onChange) {
+                                    this.props.onChange(this.state)
+                                }
+                            })
                         })
                         .catch(err => console.log(err))
                         
@@ -79,21 +98,19 @@ class InputTableRow extends React.Component<Props, State> {
             })
         })
 
-
-
     }
 
     handleDelete = (event: React.SyntheticEvent) => {
         if (this.state.delete) {
             this.setState({ delete: false }, () => {
-                if (this.props.onChange) {
-                    this.props.onChange(this.props)
+                if (this.props.onDelete) {
+                    this.props.onDelete(this.props)
                 }
             })
         } else {
             this.setState({ delete: true }, () => {
-                if (this.props.onChange) {
-                    this.props.onChange(this.props)
+                if (this.props.onDelete) {
+                    this.props.onDelete(this.props)
                 }
             })
         }
@@ -120,10 +137,10 @@ class InputTableRow extends React.Component<Props, State> {
                 </td>
                 <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
                 <td>{ this.state.capital_invested ? this.state.capital_invested : "..." }</td>
-                <td>...</td>
+                <td>{ this.state.capital_share ? this.state.capital_share : "..." }</td>
                 <td>{ this.state.opt_imp_vol_180d_pct ? this.state.opt_imp_vol_180d_pct : "..." }</td>
                 <td>{ this.state.one_sigma_risk ? this.state.one_sigma_risk : "..." }</td>
-                <td>...</td>
+                <td>{ this.state.risk_share ? this.state.risk_share : "..." }</td>
                 <td>
                     <button 
                         onClick={this.handleDelete.bind(this)}
