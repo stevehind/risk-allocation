@@ -12,7 +12,7 @@ type singleStockInfo = any
 const retrieveStockInfoFromServer = (submission: submission): singleStockInfo => {
     return axios({
         method: "POST",
-        url: `${HOST}submit_single_holding`, //`${HOST}/submit-single-holding`,
+        url: `${HOST}submit_single_holding`,
         headers: {
             "Content-type": "application/json"
         },

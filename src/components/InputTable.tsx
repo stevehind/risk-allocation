@@ -1,21 +1,7 @@
 import * as React from 'react';
 import InputTableRow from './InputTableRow'
-import cap_risk_calcs from "../utils/capital_and_risk_calcs"
-
-
-type singleStockInfo = {
-    enriched: boolean;
-    ticker: string;
-    portfolio?: boolean;
-    last_price_dollars?: number;
-    opt_imp_vol_180d_pct?: number;
-    shares_owned?: number;
-    capital_invested?: number;
-    capital_share?: number;
-    one_sigma_risk?: number;
-    risk_share?: number;
-    error_message?: string;
-}
+import cap_risk_calcs from '../utils/capital_and_risk_calcs'
+import type { singleStockInfo } from '../utils/capital_and_risk_calcs'
 
 type indexedHolding = {
     component_index: number,
@@ -40,7 +26,7 @@ type childState = {
     last_price_dollars?: number,
     one_sigma_risk?: number,
     opt_imp_vol_180d_pct?: number,
-    shares_owned?: string | number,
+    shares_owned?: number,
     submission?: {ticker: string, shares_owned: string}
     submitted?: boolean,
     ticker?: string
@@ -102,8 +88,8 @@ class InputTable extends React.Component<Props, State> {
             submitted_holdings: new_holdings,
         }, () => {
             let stock_array: Array<singleStockInfo> = this.state.submitted_holdings.map(indexed_holding => indexed_holding.holding)
-            let capital_total = cap_risk_calcs.capitalTotal(stock_array)
-            let risk_total = cap_risk_calcs.riskTotal(stock_array)
+            let capital_total: number = cap_risk_calcs.capitalTotal(stock_array)
+            let risk_total: number = cap_risk_calcs.riskTotal(stock_array)
 
             this.setState({
                 capital_total: capital_total,
@@ -119,7 +105,7 @@ class InputTable extends React.Component<Props, State> {
         let stock_info: singleStockInfo = {
             ticker: child_state.ticker,
             last_price_dollars: child_state.last_price_dollars,
-            shares_owned: parseInt(child_state.shares_owned),
+            shares_owned: child_state.shares_owned,
             capital_invested: child_state.capital_invested,
             opt_imp_vol_180d_pct: child_state.opt_imp_vol_180d_pct,
             one_sigma_risk: child_state.one_sigma_risk,
@@ -234,9 +220,7 @@ class InputTable extends React.Component<Props, State> {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td colSpan={3}><b>Total:</b></td>
                             <td></td>
                             <td>
                                 { Math.round(this.state.capital_total).toLocaleString() }

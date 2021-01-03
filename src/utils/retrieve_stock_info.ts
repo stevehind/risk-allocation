@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 
 const sanitize_stock_ticker = require('./sanitize_stock_ticker')
 
-interface singleStockInfo {
+export interface singleStockInfo {
     enriched: boolean;
     ticker: string;
     portfolio?: boolean;

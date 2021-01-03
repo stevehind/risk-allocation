@@ -3,7 +3,7 @@
  */
 
 const { isExpressionWithTypeArguments } = require('typescript')
-const retrieve_stock_info = require('../../utils/retrieve_stock_info')
+import retrieve_stock_info from '../../utils/retrieve_stock_info'
 
 const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
 

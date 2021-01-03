@@ -44,9 +44,7 @@ function capitalInvested(stock_info) {
     return 0;
 }
 function capitalTotal(portfolio) {
-    var capital_per_holding = portfolio.map(function (holding) {
-        return holding.capital_invested;
-    });
+    var capital_per_holding = portfolio.map(function (holding) { return holding.capital_invested; });
     var capital_per_holding_less_NaNs = capital_per_holding.filter(function (value) {
         if (isNaN(value)) {
             return 0;
@@ -108,6 +106,7 @@ function createSingleStockInfo(submitted_holding) {
                 var unenriched_holding = response.data;
                 unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
+                unenriched_holding.error_message = unenriched_holding.error_message;
                 return resolve(unenriched_holding);
             }
         })["catch"](function (err) { return console.error(err); });

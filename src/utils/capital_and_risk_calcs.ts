@@ -1,7 +1,6 @@
 import retrieve_stock_info from './retrieve_stock_info'
 
-
-interface singleStockInfo {
+export interface singleStockInfo {
     enriched: boolean;
     ticker: string;
     portfolio?: boolean;
@@ -113,6 +112,7 @@ function createSingleStockInfo(submitted_holding: submittedHolding): Promise<sin
                 let unenriched_holding: singleStockInfo = response.data;
                 unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
+                unenriched_holding.error_message = unenriched_holding.error_message
                 return resolve(unenriched_holding)
             }
         })

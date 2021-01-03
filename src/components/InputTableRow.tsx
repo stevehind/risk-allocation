@@ -18,7 +18,8 @@ type State = {
     opt_imp_vol_180d_pct: number | undefined,
     one_sigma_risk: number | undefined,
     capital_share: number | undefined,
-    risk_share: number | undefined
+    risk_share: number | undefined,
+    error_message: string | undefined
 }
 
 type Props = {
@@ -45,7 +46,8 @@ class InputTableRow extends React.Component<Props, State> {
             opt_imp_vol_180d_pct: undefined,
             one_sigma_risk: undefined,
             capital_share: undefined,
-            risk_share: undefined
+            risk_share: undefined,
+            error_message: undefined
         }
     }
 
@@ -92,7 +94,8 @@ class InputTableRow extends React.Component<Props, State> {
                         capital_invested: data.capital_invested,
                         last_price_dollars: data.last_price_dollars,
                         opt_imp_vol_180d_pct: data.opt_imp_vol_180d_pct,
-                        one_sigma_risk: data.one_sigma_risk, 
+                        one_sigma_risk: data.one_sigma_risk,
+                        error_message: data.error_message 
                     }, () => {
                         if (this.props.onChange) {
                             this.props.onChange(this.state)
@@ -146,12 +149,17 @@ class InputTableRow extends React.Component<Props, State> {
                         Go!
                     </button>
                 </td>
-                <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
-                <td>{ this.state.capital_invested ? Math.round(this.state.capital_invested).toLocaleString() : "..." }</td>
-                <td>{ this.state.capital_share ? parseFloat(this.state.capital_share * 100.0).toFixed(0)+"%" : "..." }</td>
-                <td>{ this.state.opt_imp_vol_180d_pct ? parseFloat(this.state.opt_imp_vol_180d_pct * 100.0).toFixed(0)+"%" : "..." }</td>
-                <td>{ this.state.one_sigma_risk ? Math.round(this.state.one_sigma_risk).toLocaleString() : "..." }</td>
-                <td>{ this.state.risk_share ? parseFloat(this.state.risk_share * 100.0).toFixed(0)+"%" : "..." }</td>
+                { this.state.error_message ?
+                <td colSpan={6}><p style={{color: "red"}} >{this.state.error_message}</p></td> :    
+                <>
+                    <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
+                    <td>{ this.state.capital_invested ? Math.round(this.state.capital_invested).toLocaleString() : "..." }</td>
+                    <td>{ this.state.capital_share ? (this.state.capital_share * 100.0).toFixed(0)+"%" : "..." }</td>
+                    <td>{ this.state.opt_imp_vol_180d_pct ? (this.state.opt_imp_vol_180d_pct * 100.0).toFixed(0)+"%" : "..." }</td>
+                    <td>{ this.state.one_sigma_risk ? Math.round(this.state.one_sigma_risk).toLocaleString() : "..." }</td>
+                    <td>{ this.state.risk_share ? (this.state.risk_share * 100.0).toFixed(0)+"%" : "..." }</td>
+                </>
+                }
                 <td>
                     <button 
                         onClick={this.handleDelete.bind(this)}
