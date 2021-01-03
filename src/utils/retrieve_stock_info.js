@@ -70,19 +70,22 @@ function retrieveStockInfo(ticker) {
         ]); })
             .then(function (_a) {
             var price = _a[0], vol = _a[1];
-            return resolve({
+            var success_result = {
                 success: true,
                 data: {
                     ticker: sanitized_ticker,
                     last_price_dollars: price,
-                    opt_imp_vol_180d_pct: vol
+                    opt_imp_vol_180d_pct: vol,
+                    enriched: true
                 }
-            });
+            };
+            return resolve(success_result);
         })["catch"](function (error) {
-            return resolve({
+            var failure_result = {
                 success: false,
                 data: error
-            });
+            };
+            return resolve(failure_result);
         });
     });
 }
@@ -91,4 +94,4 @@ var retrieve_stock_info = {
     scrapeOptImpVol: scrapeOptImpVol,
     retrieveStockInfo: retrieveStockInfo
 };
-module.exports = retrieve_stock_info;
+exports["default"] = retrieve_stock_info;

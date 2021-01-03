@@ -24,4 +24,4 @@ const sanitize_stock_ticker = {
     sanitizeStockTicker: sanitizeStockTicker
 };
 
-module.exports = sanitize_stock_ticker;
+export default sanitize_stock_ticker;

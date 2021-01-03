@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var retrieve_stock_info = require('./retrieve_stock_info');
+exports.__esModule = true;
+var retrieve_stock_info_1 = require("./retrieve_stock_info");
 function capitalInvested(stock_info) {
     if (stock_info.enriched) {
         return stock_info.last_price_dollars * stock_info.shares_owned;
@@ -42,9 +44,7 @@ function capitalInvested(stock_info) {
     return 0;
 }
 function capitalTotal(portfolio) {
-    var capital_per_holding = portfolio.map(function (holding) {
-        return holding.capital_invested;
-    });
+    var capital_per_holding = portfolio.map(function (holding) { return holding.capital_invested; });
     var capital_per_holding_less_NaNs = capital_per_holding.filter(function (value) {
         if (isNaN(value)) {
             return 0;
@@ -89,20 +89,24 @@ function riskShare(ticker, portfolio) {
 }
 function createSingleStockInfo(submitted_holding) {
     return new Promise(function (resolve, reject) {
-        return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
+        return retrieve_stock_info_1["default"].retrieveStockInfo(submitted_holding.ticker)
             .then(function (response) {
             if (response.success) {
+                // @ts-ignore
                 var enriched_holding = response.data;
                 enriched_holding.enriched = true;
                 enriched_holding.portfolio = false;
                 enriched_holding.shares_owned = submitted_holding.shares_owned;
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding);
+                enriched_holding.one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(enriched_holding);
                 return resolve(enriched_holding);
             }
             else {
+                // @ts-ignore
                 var unenriched_holding = response.data;
                 unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
+                unenriched_holding.error_message = unenriched_holding.error_message;
                 return resolve(unenriched_holding);
             }
         })["catch"](function (err) { return console.error(err); });
@@ -148,4 +152,4 @@ var capital_and_risk_calcs = {
     riskTotal: riskTotal,
     riskShare: riskShare
 };
-module.exports = capital_and_risk_calcs;
+exports["default"] = capital_and_risk_calcs;

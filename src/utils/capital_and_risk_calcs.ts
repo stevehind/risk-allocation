@@ -1,6 +1,6 @@
-const retrieve_stock_info = require('./retrieve_stock_info')
+import retrieve_stock_info from './retrieve_stock_info'
 
-interface singleStockInfo {
+export interface singleStockInfo {
     enriched: boolean;
     ticker: string;
     portfolio?: boolean;
@@ -12,6 +12,18 @@ interface singleStockInfo {
     one_sigma_risk?: number;
     risk_share?: number;
     error_message?: string;
+}
+
+interface stockInfoScrapeSuccessResult {
+    success: boolean;
+    data: singleStockInfo;
+}
+
+interface stockInfoScrapeFailureResult {
+    success: boolean;
+    data: {
+        message: string
+    };
 }
 
 interface submittedHolding {
@@ -28,11 +40,9 @@ function capitalInvested(stock_info: singleStockInfo): number {
 }
 
 function capitalTotal(portfolio: Array<singleStockInfo>): number {
-    let capital_per_holding = portfolio.map(holding => {
-        return holding.capital_invested
-    })
+    let capital_per_holding: Array<number> = portfolio.map(holding => holding.capital_invested)
 
-    let capital_per_holding_less_NaNs = capital_per_holding.filter(value => {
+    let capital_per_holding_less_NaNs: Array<number> = capital_per_holding.filter(value => {
         if (isNaN(value)) {
             return 0
         } else {
@@ -87,18 +97,22 @@ function riskShare(ticker: string, portfolio: Array<singleStockInfo>): number {
 function createSingleStockInfo(submitted_holding: submittedHolding): Promise<singleStockInfo> {
     return new Promise((resolve, reject) => {
         return retrieve_stock_info.retrieveStockInfo(submitted_holding.ticker)
-        .then(response => {
+        .then((response: stockInfoScrapeSuccessResult | stockInfoScrapeFailureResult) => {
             if (response.success) {
+                // @ts-ignore
                 let enriched_holding: singleStockInfo = response.data
                 enriched_holding.enriched = true;
                 enriched_holding.portfolio = false;
                 enriched_holding.shares_owned = submitted_holding.shares_owned;
                 enriched_holding.capital_invested = capital_and_risk_calcs.capitalInvested(enriched_holding)
+                enriched_holding.one_sigma_risk = capital_and_risk_calcs.oneSigmaRiskDollars(enriched_holding)
                 return resolve(enriched_holding)
             } else {
+                // @ts-ignore
                 let unenriched_holding: singleStockInfo = response.data;
                 unenriched_holding.ticker = submitted_holding.ticker;
                 unenriched_holding.enriched = false;
+                unenriched_holding.error_message = unenriched_holding.error_message
                 return resolve(unenriched_holding)
             }
         })
@@ -152,4 +166,4 @@ const capital_and_risk_calcs = {
     riskShare: riskShare
 };
 
-module.exports = capital_and_risk_calcs;
+export default capital_and_risk_calcs;

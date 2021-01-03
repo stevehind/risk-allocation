@@ -2,11 +2,12 @@ import { textChangeRangeIsUnchanged } from "typescript"
 
 const express = require('express')
 const app = express()
-const port = process.env.port || 3000
+const port = process.env.port || 5000
+const cors = require('cors')
 const path = require('path')
 
 // Import utils
-const cap_risk_calcs = require('./utils/capital_and_risk_calcs')
+import cap_risk_calcs from './src/utils/capital_and_risk_calcs'
 
 // Bodyparser middleware
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ app.use(
     })
   );
 app.use(bodyParser.json());
+
+app.use(cors());
 
 interface submittedHolding {
     ticker: string;
@@ -59,7 +62,15 @@ app.post('/submit_holdings', async(req, res) => {
     })
 })
 
+app.post('/submit_single_holding', async(req, res) => {
+    let submitted_single_holding: submittedHolding = req.body
+
+    return cap_risk_calcs.createSingleStockInfo(submitted_single_holding)
+    .then(stock_info => { return res.status(200).json(stock_info) })
+    .catch(err => console.error(err))
+})
+
 // Run the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`)
+    console.log(`Listening on ${port}`)
 })
