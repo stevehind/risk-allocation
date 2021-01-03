@@ -5,7 +5,13 @@
   "proxy": "http://localhost:5000/",
   "babel": {
     "plugins": [
-      "@babel/plugin-syntax-jsx"
+      "@babel/plugin-syntax-jsx",
+      "@babel/plugin-transform-runtime"
+    ],
+    "presets": [
+      "@babel/preset-typescript",
+      "@babel/preset-react",
+      "@babel/preset-env"
     ]
   },
   "dependencies": {

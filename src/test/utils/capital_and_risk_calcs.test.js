@@ -4,23 +4,25 @@
 
 const { TestScheduler } = require('jest')
 const { JsxEmit } = require('typescript')
-const capital_and_risk_calcs = require('../../utils/capital_and_risk_calcs')
+import capital_and_risk_calcs from '../../utils/capital_and_risk_calcs'
 
-const tsla_stock_info = {
+const tsla_stock_info_20200103 = {
     ticker: 'tsla',
-    last_price_dollars: 665.99,
-    opt_imp_vol_180d_pct: 0.6463,
+    last_price_dollars: 705.67,
+    opt_imp_vol_180d_pct: 0.6761,
     shares_owned: 10,
-    capital_invested: 6659.9,
+    capital_invested: 7056.70,
+    one_sigma_risk: 4771.03487,
     enriched: true,
     portfolio: false
 }
 
-const fb_stock_info = {
-    capital_invested: 2767.7999999999997,
+const fb_stock_info_20200103 = {
+    capital_invested: 2731.6000000000004,
+    one_sigma_risk: 1007.4140800000001,
     enriched: true,
-    last_price_dollars: 276.78,
-    opt_imp_vol_180d_pct: 0.3686,
+    last_price_dollars: 273.16,
+    opt_imp_vol_180d_pct: 0.3688,
     shares_owned: 10,
     ticker: "fb",
     portfolio: false
@@ -75,7 +77,7 @@ const test_submitted_info_array_with_invalid_ticker = [
 ]
 
 const test_stock_info_array_with_errors = [
-    tsla_stock_info,
+    tsla_stock_info_20200103,
     {
         enriched: false,
         shares_owned: 10,
@@ -85,12 +87,12 @@ const test_stock_info_array_with_errors = [
 ]
 
 const test_stock_info_result_array = [
-    tsla_stock_info,
-    fb_stock_info
+    tsla_stock_info_20200103,
+    fb_stock_info_20200103
 ]
 
 const test_stock_info_result_array_handling_errors = [
-    tsla_stock_info,
+    tsla_stock_info_20200103,
     {
         ticker: "tslala",
         enriched: false,
@@ -242,7 +244,7 @@ test("calculates risk as 0 where there is an invalid input", () => {
 test('Creates stock info object from submitted holdings', async(done) => {
     await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
     .then(result => {
-        expect(result).toStrictEqual(tsla_stock_info)
+        expect(result).toStrictEqual(tsla_stock_info_20200103)
     })
     .catch(err => console.error(err))
     .finally(() => done());
