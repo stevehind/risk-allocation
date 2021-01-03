@@ -39,10 +39,9 @@ interface singleStockInfo {
     error_message?: string;
 }
 
-// Basic get '/' route
-app.get('/', (req, res) => {
-    res.status(200).json({ message: 'server running.'})
-})
+// server the public index.html from the build folder
+app.use(express.static(path.join(__dirname, "./", "build")));
+app.use(express.static("public"));
 
 app.get('/submit_holdings', (req, res) => {
     return res.status(200).json({ messsage: 'POST to this route only.' })

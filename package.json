@@ -34,14 +34,14 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "test": "jest",
-    "compile": "tsc --build tsconfig.json && tsc server.ts",
-    "dev": "npm run compile && npm run test",
-    "server-start": "nodemon server.js",
-    "client-start": "react-scripts start",
+    "dev-test": "jest",
+    "dev-compile": "tsc --build tsconfig.json && tsc server.ts",
+    "dev-compile-and-test": "npm run dev-compile && npm run dev-test",
+    "dev-server-start": "nodemon server.js",
+    "dev-client-start": "react-scripts start",
     "client-build": "react-scripts build",
-    "client-eject": "react-scripts eject",
-    "full-dev": "concurrently --kill-others-on-fail \"npm run server-start\" \"npm run client-start\" "
+    "dev-client-eject": "react-scripts eject",
+    "deploy": "npm run client-build && node server.js"
   },
   "devDependencies": {
     "@types/node": "^14.14.16"
