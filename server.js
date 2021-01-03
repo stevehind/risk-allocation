@@ -66,7 +66,6 @@ app.post('/submit_holdings', function (req, res) { return __awaiter(void 0, void
                 return capital_and_risk_calcs_1["default"].createPortfolio(enriched_holdings);
             })
                 .then(function (portfolio) {
-                console.log("Portfolio: %o", portfolio);
                 return res.status(200).json(portfolio);
             })];
     });

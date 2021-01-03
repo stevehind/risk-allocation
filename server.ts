@@ -56,7 +56,6 @@ app.post('/submit_holdings', async(req, res) => {
         return cap_risk_calcs.createPortfolio(enriched_holdings)
     })
     .then(portfolio => {
-        console.log("Portfolio: %o", portfolio)
         return res.status(200).json(portfolio)
     })
 })

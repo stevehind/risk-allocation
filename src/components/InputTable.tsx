@@ -99,8 +99,6 @@ class InputTable extends React.Component<Props, State> {
     }
 
     collectChildState = (child_state: childState) => {
-        console.log("Collect child state started!")
-        console.log("Child state is: %o", child_state)
 
         let stock_info: singleStockInfo = {
             ticker: child_state.ticker,
@@ -121,8 +119,6 @@ class InputTable extends React.Component<Props, State> {
         }
         let to_add: boolean = false
 
-        console.log("new_or_updated holding is: %o", new_or_updated_holding)
-
         existing_submitted_holdings.map((indexed_holding: indexedHolding) => {
             if (indexed_holding.component_index === child_state.index) {
                 to_add = true
@@ -131,7 +127,6 @@ class InputTable extends React.Component<Props, State> {
         })
 
         if (!to_add) {
-            console.log("adding a new holding")
             existing_submitted_holdings.push(new_or_updated_holding)
         }
 

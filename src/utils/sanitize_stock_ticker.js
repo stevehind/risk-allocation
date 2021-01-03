@@ -1,3 +1,5 @@
+"use strict";
+exports.__esModule = true;
 function sanitizeStockTicker(ticker) {
     var ticker_as_string = ticker.toString();
     var ticker_without_spaces = ticker_as_string.replace(/\s+/g, "");
@@ -20,4 +22,4 @@ function sanitizeStockTicker(ticker) {
 var sanitize_stock_ticker = {
     sanitizeStockTicker: sanitizeStockTicker
 };
-module.exports = sanitize_stock_ticker;
+exports["default"] = sanitize_stock_ticker;

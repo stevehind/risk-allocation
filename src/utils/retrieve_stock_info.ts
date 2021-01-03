@@ -2,7 +2,7 @@ import { ModuleResolutionKind } from "typescript"
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const sanitize_stock_ticker = require('./sanitize_stock_ticker')
+import sanitize_stock_ticker from './sanitize_stock_ticker'
 
 export interface singleStockInfo {
     enriched: boolean;

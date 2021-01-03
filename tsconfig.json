@@ -21,6 +21,13 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src/api",
+    "src/utils",
+    "./server.ts"
+  ],
+  "ignore": [
+      "src/components",
+      "src/index.tsx",
+      "src/app.tsx"
   ]
 }

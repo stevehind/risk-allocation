@@ -2,7 +2,7 @@
 exports.__esModule = true;
 var axios = require('axios');
 var cheerio = require('cheerio');
-var sanitize_stock_ticker = require('./sanitize_stock_ticker');
+var sanitize_stock_ticker_1 = require("./sanitize_stock_ticker");
 function scrapeStockPrice(ticker) {
     return new Promise(function (resolve, reject) {
         var scrape_target_url = "https://www.alphaquery.com/stock/" + ticker + "/all-data-variables";
@@ -62,7 +62,7 @@ function scrapeOptImpVol(ticker) {
 }
 function retrieveStockInfo(ticker) {
     return new Promise(function (resolve, reject) {
-        var sanitized_ticker = sanitize_stock_ticker.sanitizeStockTicker(ticker);
+        var sanitized_ticker = sanitize_stock_ticker_1["default"].sanitizeStockTicker(ticker);
         return retrieve_stock_info.scrapeStockPrice(sanitized_ticker)
             .then(function (price) { return Promise.all([
             price,
