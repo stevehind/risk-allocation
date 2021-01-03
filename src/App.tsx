@@ -8,22 +8,17 @@ function App() {
       <header className="App-header">
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
         <p>
-          Edit <code>src/App.tsx</code> and save to reload.
+          Enter your portfolio and see where your <em>risk</em> is allocated.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
       <div className="full-container">
-        <div className="container">
+        <div className="container padding-top">
           <InputTable/>
         </div>
       </div>
+      <footer>
+        <p>Another dumb project by <a href="https://stevehind.me">Steve</a>© 2021.</p>
+      </footer>
     </div>
   );
 }

@@ -7,8 +7,7 @@ type State = {
     disabled: boolean,
     holding_submitted: boolean,
     row_counter: number,
-    row_keys: Array<number>,
-    rows_to_delete: Array<number>
+    row_keys: Array<number>
 }
 
 type suppliedProps = {
@@ -25,9 +24,10 @@ class InputTable extends React.Component<Props, State> {
             disabled: true,
             holding_submitted: false,
             row_counter: 1,
-            row_keys: [1],
-            rows_to_delete: []
+            row_keys: [1]
         }
+
+        this.deleteSelectedRows = this.deleteSelectedRows.bind(this)
 
     }
 
@@ -46,25 +46,23 @@ class InputTable extends React.Component<Props, State> {
     }
 
     incrementRowCounter = () => {
-        let new_counter = this.state.row_counter + 1
+        let new_counter: number = this.state.row_counter + 1
         
+        this.state.row_keys.push(new_counter)
+
         this.setState({
-            row_counter: new_counter
+            row_counter: new_counter,
+            row_keys: this.state.row_keys
         })
     }
 
-    determineRowstoDelete = (supplied_props: suppliedProps) => {
-        let index = supplied_props.index
-        let rows_to_delete = this.state.rows_to_delete
-        rows_to_delete.push(index)
-        
-        this.setState({
-            rows_to_delete: rows_to_delete
-        })
-    }
 
-    deleteSelectedRows = (data) => {
-        console.log(data);
+    deleteSelectedRows = (supplied_props: suppliedProps): void => {
+        let new_row_keys = this.state.row_keys.filter(row => row != supplied_props.index)
+
+        this.setState({
+            row_keys: new_row_keys
+        })
     }
 
     render() {
@@ -85,43 +83,37 @@ class InputTable extends React.Component<Props, State> {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>TSLA</td>
-                            <td>10</td>
-                            <td>600</td>
-                            <td>6.0</td>
-                            <td>100%</td>
-                            <td>65%</td>
-                            <td>3.9</td>
-                            <td>100%</td>
-                            <td>...</td>
-                        </tr>
                         {
-                            //[...Array(this.state.row_counter)]
                             this.state.row_keys.map(
                                 (row_key: number) => {
-                                    return <InputTableRow index={row_key} onChange={this.determineRowstoDelete} />
+                                    return <InputTableRow index={row_key} onChange={this.deleteSelectedRows} />
                                 }
                             )
                         }
+                    </tbody>
+                    <tfoot>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td>
-                                <button
-                                    onClick={this.deleteSelectedRows}
-                                >
-                                    Delete selected
-                                </button>
+                                --capital sum--
                             </td>
+                            <td>
+                                100%
+                            </td>
+                            <td>
+                                ...
+                            </td>
+                            <td>
+                                --risk sum--
+                            </td>
+                            <td>
+                                100%
+                            </td>
+                            <td></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
                 <button
                     onClick={this.incrementRowCounter}

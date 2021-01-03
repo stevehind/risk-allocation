@@ -83,7 +83,7 @@ class InputTableRow extends React.Component<Props, State> {
 
     }
 
-    handleCheckbox = (event: React.SyntheticEvent) => {
+    handleDelete = (event: React.SyntheticEvent) => {
         if (this.state.delete) {
             this.setState({ delete: false }, () => {
                 if (this.props.onChange) {
@@ -125,7 +125,9 @@ class InputTableRow extends React.Component<Props, State> {
                 <td>{ this.state.one_sigma_risk ? this.state.one_sigma_risk : "..." }</td>
                 <td>...</td>
                 <td>
-                    <button>
+                    <button 
+                        onClick={this.handleDelete.bind(this)}
+                    >
                         Delete
                     </button>
                 </td>
