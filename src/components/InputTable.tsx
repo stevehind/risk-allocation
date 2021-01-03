@@ -34,16 +34,16 @@ type State = {
 }
 
 type childState = {
-    index: number,
-    capital_invested: number,
-    delete: boolean,
-    last_price_dollars: number,
-    one_sigma_risk: number,
-    opt_imp_vol_180d_pct: number,
-    shares_owned: string,
-    submission: {ticker: string, shares_owned: string}
-    submitted: boolean,
-    ticker: string
+    index?: number,
+    capital_invested?: number,
+    delete?: boolean,
+    last_price_dollars?: number,
+    one_sigma_risk?: number,
+    opt_imp_vol_180d_pct?: number,
+    shares_owned?: string | number,
+    submission?: {ticker: string, shares_owned: string}
+    submitted?: boolean,
+    ticker?: string
 }
 
 type suppliedChildProps = {
@@ -99,11 +99,23 @@ class InputTable extends React.Component<Props, State> {
 
         this.setState({
             row_keys: new_row_keys,
-            submitted_holdings: new_holdings
+            submitted_holdings: new_holdings,
+        }, () => {
+            let stock_array: Array<singleStockInfo> = this.state.submitted_holdings.map(indexed_holding => indexed_holding.holding)
+            let capital_total = cap_risk_calcs.capitalTotal(stock_array)
+            let risk_total = cap_risk_calcs.riskTotal(stock_array)
+
+            this.setState({
+                capital_total: capital_total,
+                risk_total: risk_total
+            })
         })
     }
 
     collectChildState = (child_state: childState) => {
+        console.log("Collect child state started!")
+        console.log("Child state is: %o", child_state)
+
         let stock_info: singleStockInfo = {
             ticker: child_state.ticker,
             last_price_dollars: child_state.last_price_dollars,
@@ -115,33 +127,45 @@ class InputTable extends React.Component<Props, State> {
             portfolio: false
         }
 
-        let submitted_holdings = this.state.submitted_holdings
-        let new_holding: indexedHolding = {
+        let existing_submitted_holdings = this.state.submitted_holdings
+
+        let new_or_updated_holding: indexedHolding = {
             component_index: child_state.index,
             holding: stock_info
         }
         let to_add: boolean = false
 
-        submitted_holdings.map(holding => {
-            if (holding.component_index === child_state.index) {
+        console.log("new_or_updated holding is: %o", new_or_updated_holding)
+
+        existing_submitted_holdings.map((indexed_holding: indexedHolding) => {
+            if (indexed_holding.component_index === child_state.index) {
                 to_add = true
-                return holding = new_holding
+                indexed_holding.holding = new_or_updated_holding.holding
             }
         })
 
         if (!to_add) {
-            submitted_holdings.push(new_holding)
+            console.log("adding a new holding")
+            existing_submitted_holdings.push(new_or_updated_holding)
         }
 
-        let enriched_holdings = this.addPortfolioData(submitted_holdings)
-
         this.setState({
-            submitted_holdings: enriched_holdings
+            submitted_holdings: existing_submitted_holdings
         }, () => {
-            this.sumCapital(this.state.submitted_holdings)
-            this.sumRisk(this.state.submitted_holdings)
-        })
+            let stock_array: Array<singleStockInfo> = this.state.submitted_holdings.map(indexed_holding => indexed_holding.holding)
+            let total_capital: number = cap_risk_calcs.capitalTotal(stock_array)
+            let total_risk: number = cap_risk_calcs.riskTotal(stock_array)
 
+            this.state.submitted_holdings.map(indexed_holding => {
+                indexed_holding.holding.capital_share = indexed_holding.holding.capital_invested / total_capital
+                indexed_holding.holding.risk_share = indexed_holding.holding.one_sigma_risk / total_risk
+            })
+
+            this.setState({
+                risk_total: total_risk,
+                capital_total: total_capital
+            })
+        })
     }
 
     addPortfolioData = (holdings: Array<indexedHolding>): Array<indexedHolding> => {
@@ -157,7 +181,8 @@ class InputTable extends React.Component<Props, State> {
     }
 
     getStateForChild = (index, holdings: Array<indexedHolding>): indexedHolding => {
-        return holdings.filter(holding => holding.component_index === index)[0]
+        let state_for_this_child = holdings.filter(holding => holding.component_index === index)[0]
+        return state_for_this_child
     }
 
     sumCapital = (holdings: Array<indexedHolding>): void => {
@@ -182,6 +207,7 @@ class InputTable extends React.Component<Props, State> {
                         <tr>
                             <th>Stock ticker</th>
                             <th>Number of shares owned</th>
+                            <th></th>
                             <th>Last closing price ($)</th>
                             <th>Capital invested ($)</th>
                             <th>Share of capital</th>
@@ -196,6 +222,7 @@ class InputTable extends React.Component<Props, State> {
                             this.state.row_keys.map(
                                 (row_key: number) => {
                                     return <InputTableRow
+                                        key={row_key}
                                         index={row_key}
                                         stateFromParent={this.getStateForChild(row_key, this.state.submitted_holdings)}
                                         onChange={this.collectChildState}
@@ -210,15 +237,14 @@ class InputTable extends React.Component<Props, State> {
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                             <td>
                                 { Math.round(this.state.capital_total).toLocaleString() }
                             </td>
                             <td>
                                 100%
                             </td>
-                            <td>
-                                ...
-                            </td>
+                            <td></td>
                             <td>
                             { Math.round(this.state.risk_total).toLocaleString() }
                             </td>

@@ -22,6 +22,7 @@ type State = {
 }
 
 type Props = {
+    key: number,
     index: number,
     onDelete: any,
     onChange: any,
@@ -54,6 +55,8 @@ class InputTableRow extends React.Component<Props, State> {
                 capital_share: props.stateFromParent.holding.capital_share,
                 risk_share: props.stateFromParent.holding.risk_share
             }
+        } else {
+            return {}
         }
     }
 
@@ -62,6 +65,7 @@ class InputTableRow extends React.Component<Props, State> {
         const name = event.currentTarget.name;
 
         this.setState({
+            
             [name]: value
         } as any, () => {
             let submission = {
@@ -71,31 +75,33 @@ class InputTableRow extends React.Component<Props, State> {
             
             this.setState({
                 submission: submission
-            } as any, () => {
-                if (this.state.submission.ticker && this.state.submission.shares_owned) {
-
-                    this.setState({
-                        submitted: true
-                    } as any, async() => {
-                        return await api.retrieveStockInfoFromServer(this.state.submission)
-                        .then(data => {
-                            this.setState({
-                                index: this.props.index,
-                                capital_invested: data.capital_invested,
-                                last_price_dollars: data.last_price_dollars,
-                                opt_imp_vol_180d_pct: data.opt_imp_vol_180d_pct,
-                                one_sigma_risk: data.one_sigma_risk 
-                            }, () => {
-                                if (this.props.onChange) {
-                                    this.props.onChange(this.state)
-                                }
-                            })
-                        })
-                        .catch(err => console.log(err))
-                    })
-                }
             })
         })
+    }
+
+    handleGetData = (event: React.SyntheticEvent) => {
+        if (this.state.submission.ticker && this.state.submission.shares_owned) {
+
+            this.setState({
+                submitted: true
+            } as any, async() => {
+                return await api.retrieveStockInfoFromServer(this.state.submission)
+                .then(data => {
+                    this.setState({
+                        index: this.props.index,
+                        capital_invested: data.capital_invested,
+                        last_price_dollars: data.last_price_dollars,
+                        opt_imp_vol_180d_pct: data.opt_imp_vol_180d_pct,
+                        one_sigma_risk: data.one_sigma_risk, 
+                    }, () => {
+                        if (this.props.onChange) {
+                            this.props.onChange(this.state)
+                        }
+                    })
+                })
+                .catch(err => console.log(err))
+            })
+        }
     }
 
     handleDelete = (event: React.SyntheticEvent) => {
@@ -132,6 +138,13 @@ class InputTableRow extends React.Component<Props, State> {
                         placeholder="Shares owned"
                         onChange={this.handleChange}
                     />
+                </td>
+                <td>
+                    <button
+                        onClick={this.handleGetData}
+                    >
+                        Go!
+                    </button>
                 </td>
                 <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
                 <td>{ this.state.capital_invested ? Math.round(this.state.capital_invested).toLocaleString() : "..." }</td>

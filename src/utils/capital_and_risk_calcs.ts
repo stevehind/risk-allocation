@@ -41,11 +41,9 @@ function capitalInvested(stock_info: singleStockInfo): number {
 }
 
 function capitalTotal(portfolio: Array<singleStockInfo>): number {
-    let capital_per_holding = portfolio.map(holding => {
-        return holding.capital_invested
-    })
+    let capital_per_holding: Array<number> = portfolio.map(holding => holding.capital_invested)
 
-    let capital_per_holding_less_NaNs = capital_per_holding.filter(value => {
+    let capital_per_holding_less_NaNs: Array<number> = capital_per_holding.filter(value => {
         if (isNaN(value)) {
             return 0
         } else {
