@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const HOST: string = 'http://localhost:5000/';
+const HOST: string = process.env.PUBLIC_URL;
 
 type submission = {
     ticker: string,

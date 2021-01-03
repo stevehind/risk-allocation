@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var axios_1 = require("axios");
-var HOST = 'http://localhost:5000/';
+var HOST = process.env.PUBLIC_URL;
 var retrieveStockInfoFromServer = function (submission) {
     return axios_1["default"]({
         method: "POST",
