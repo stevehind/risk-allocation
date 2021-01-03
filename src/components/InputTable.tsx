@@ -78,9 +78,7 @@ class InputTable extends React.Component<Props, State> {
             this.setState({ row_keys: new_keys })
         } else {
             this.setState({ row_keys: current_keys })
-        }
-
-        
+        }        
     }
 
     incrementRowCounter = () => {
@@ -137,9 +135,11 @@ class InputTable extends React.Component<Props, State> {
 
         let enriched_holdings = this.addPortfolioData(submitted_holdings)
 
-        console.log("enriched_holdings: %o", enriched_holdings)
         this.setState({
             submitted_holdings: enriched_holdings
+        }, () => {
+            this.sumCapital(this.state.submitted_holdings)
+            this.sumRisk(this.state.submitted_holdings)
         })
 
     }
@@ -153,8 +153,6 @@ class InputTable extends React.Component<Props, State> {
             holding.holding = stock_array_enriched[index]
             return holding
         })
-
-        console.log("new_holdings: %o ", new_holdings)
         return new_holdings    
     }
 
@@ -185,10 +183,10 @@ class InputTable extends React.Component<Props, State> {
                             <th>Stock ticker</th>
                             <th>Number of shares owned</th>
                             <th>Last closing price ($)</th>
-                            <th>Capital invested ($k)</th>
+                            <th>Capital invested ($)</th>
                             <th>Share of capital</th>
                             <th>Options-implied volatility (one sigma)</th>
-                            <th>One sigma risk ($k)</th>
+                            <th>One sigma risk ($)</th>
                             <th>Share of risk</th>
                             <th>Delete?</th>
                         </tr>
@@ -213,7 +211,7 @@ class InputTable extends React.Component<Props, State> {
                             <td></td>
                             <td></td>
                             <td>
-                                { this.state.capital_total }
+                                { Math.round(this.state.capital_total).toLocaleString() }
                             </td>
                             <td>
                                 100%
@@ -222,7 +220,7 @@ class InputTable extends React.Component<Props, State> {
                                 ...
                             </td>
                             <td>
-                            { this.state.risk_total }
+                            { Math.round(this.state.risk_total).toLocaleString() }
                             </td>
                             <td>
                                 100%

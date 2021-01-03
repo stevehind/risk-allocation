@@ -92,12 +92,10 @@ class InputTableRow extends React.Component<Props, State> {
                             })
                         })
                         .catch(err => console.log(err))
-                        
                     })
                 }
             })
         })
-
     }
 
     handleDelete = (event: React.SyntheticEvent) => {
@@ -136,11 +134,11 @@ class InputTableRow extends React.Component<Props, State> {
                     />
                 </td>
                 <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
-                <td>{ this.state.capital_invested ? this.state.capital_invested : "..." }</td>
-                <td>{ this.state.capital_share ? this.state.capital_share : "..." }</td>
-                <td>{ this.state.opt_imp_vol_180d_pct ? this.state.opt_imp_vol_180d_pct : "..." }</td>
-                <td>{ this.state.one_sigma_risk ? this.state.one_sigma_risk : "..." }</td>
-                <td>{ this.state.risk_share ? this.state.risk_share : "..." }</td>
+                <td>{ this.state.capital_invested ? Math.round(this.state.capital_invested).toLocaleString() : "..." }</td>
+                <td>{ this.state.capital_share ? parseFloat(this.state.capital_share * 100.0).toFixed(0)+"%" : "..." }</td>
+                <td>{ this.state.opt_imp_vol_180d_pct ? parseFloat(this.state.opt_imp_vol_180d_pct * 100.0).toFixed(0)+"%" : "..." }</td>
+                <td>{ this.state.one_sigma_risk ? Math.round(this.state.one_sigma_risk).toLocaleString() : "..." }</td>
+                <td>{ this.state.risk_share ? parseFloat(this.state.risk_share * 100.0).toFixed(0)+"%" : "..." }</td>
                 <td>
                     <button 
                         onClick={this.handleDelete.bind(this)}
