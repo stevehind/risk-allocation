@@ -73,7 +73,6 @@ function oneSigmaRiskDollars(stock: singleStockInfo): number {
     } else {
         return 0
     }
-    
 }
 
 function riskTotal(portfolio: Array<singleStockInfo>): number {
