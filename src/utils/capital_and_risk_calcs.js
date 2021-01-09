@@ -53,7 +53,7 @@ function capitalTotal(portfolio) {
             return value;
         }
     });
-    return capital_per_holding_less_NaNs.reduce(function (r, d) { return r + d; }, 0);
+    return capital_per_holding_less_NaNs.reduce(function (r, d) { return r + Math.abs(d); }, 0);
 }
 function capitalShare(ticker, portfolio) {
     var total_capital = capital_and_risk_calcs.capitalTotal(portfolio);
@@ -79,7 +79,7 @@ function riskTotal(portfolio) {
     var stock_risks = portfolio.map(function (stock) {
         return capital_and_risk_calcs.oneSigmaRiskDollars(stock);
     });
-    return stock_risks.reduce(function (a, b) { return a + b; }, 0);
+    return stock_risks.reduce(function (a, b) { return a + Math.abs(b); }, 0);
 }
 function riskShare(ticker, portfolio) {
     var total_risk = capital_and_risk_calcs.riskTotal(portfolio);

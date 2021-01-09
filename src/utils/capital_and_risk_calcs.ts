@@ -81,7 +81,7 @@ function riskTotal(portfolio: Array<singleStockInfo>): number {
         return capital_and_risk_calcs.oneSigmaRiskDollars(stock)
     })
 
-    return stock_risks.reduce((a, b) => a + b, 0);
+    return stock_risks.reduce((a, b) => a + Math.abs(b), 0);
 }
 
 function riskShare(ticker: string, portfolio: Array<singleStockInfo>): number {
