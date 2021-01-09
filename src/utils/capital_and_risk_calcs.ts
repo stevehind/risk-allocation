@@ -69,7 +69,7 @@ function capitalShare(ticker: string, portfolio: Array<singleStockInfo>): number
 
 function oneSigmaRiskDollars(stock: singleStockInfo): number {
     if (stock.enriched) {
-        return stock.opt_imp_vol_180d_pct * stock.capital_invested
+        return stock.opt_imp_vol_180d_pct * Math.abs(stock.capital_invested)
     } else {
         return 0
     }

@@ -254,6 +254,11 @@ test('calculates dollar value of one sigma move in a stock', () => {
     .toBe(25.0)
 })
 
+test('returns a positive number when given a short position', () => {
+    expect(capital_and_risk_calcs.oneSigmaRiskDollars(test_stock_info_array_unportfoliod_short[0]))
+    .toBe(25.0)
+})
+
 // Test riskTotal
 test('calculates total risk across portfolio', () => {
     expect(capital_and_risk_calcs.riskTotal(test_stock_info_array_unportfoliod))
