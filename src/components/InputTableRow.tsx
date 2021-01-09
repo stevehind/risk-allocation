@@ -159,7 +159,7 @@ class InputTableRow extends React.Component<Props, State> {
                 { this.state.error_message ?
                 <td colSpan={6}><p style={{color: "red"}} >{this.state.error_message}</p></td> :    
                 <>
-                    <td>{ this.state.last_price_dollars ? this.state.last_price_dollars : "..." }</td>
+                    <td>{ this.state.last_price_dollars ? this.state.last_price_dollars.toLocaleString() : "..." }</td>
                     <td>{ this.state.capital_invested ? Math.round(this.state.capital_invested).toLocaleString() : "..." }</td>
                     <td>{ this.state.capital_share ? (this.state.capital_share * 100.0).toFixed(0)+"%" : "..." }</td>
                     <td>{ this.state.opt_imp_vol_180d_pct ? (this.state.opt_imp_vol_180d_pct * 100.0).toFixed(0)+"%" : "..." }</td>
