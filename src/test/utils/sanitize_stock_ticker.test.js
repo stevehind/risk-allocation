@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const sanitize_stock_ticker = require('../../utils/sanitize_stock_ticker')
+import sanitize_stock_ticker from '../../utils/sanitize_stock_ticker'
 
 const sanitizeErrorMsg = 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
 

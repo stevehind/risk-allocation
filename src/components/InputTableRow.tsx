@@ -10,6 +10,7 @@ type State = {
     index: number,
     submitted: boolean,
     ticker: string | undefined,
+    verbose_name: string | undefined,
     shares_owned: number | undefined,
     submission: Submission | undefined,
     delete: boolean,
@@ -38,6 +39,7 @@ class InputTableRow extends React.Component<Props, State> {
             index: undefined,
             submitted: false,
             ticker: undefined,
+            verbose_name: undefined,
             shares_owned: undefined,
             submission: undefined,
             delete: false,
@@ -91,6 +93,7 @@ class InputTableRow extends React.Component<Props, State> {
                 .then(data => {
                     this.setState({
                         index: this.props.index,
+                        verbose_name: data.verbose_name,
                         capital_invested: data.capital_invested,
                         last_price_dollars: data.last_price_dollars,
                         opt_imp_vol_180d_pct: data.opt_imp_vol_180d_pct,
@@ -127,12 +130,16 @@ class InputTableRow extends React.Component<Props, State> {
         return (
             <tr key={this.props.index}>
                 <td>
-                    <input
-                        type="text"
-                        name="ticker"
-                        placeholder="Stock ticker"
-                        onChange={this.handleChange}
-                    />
+                    { this.state.verbose_name ?                    
+                        <p>{this.state.verbose_name}</p>
+                    :
+                        <input
+                            type="text"
+                            name="ticker"
+                            placeholder="Stock ticker"
+                            onChange={this.handleChange}
+                        />
+                    }
                 </td>
                 <td>
                     <input

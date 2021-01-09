@@ -6,25 +6,27 @@ const { TestScheduler } = require('jest')
 const { JsxEmit } = require('typescript')
 import capital_and_risk_calcs from '../../utils/capital_and_risk_calcs'
 
-const tsla_stock_info_20200103 = {
+const tsla_stock_info_20200108 = {
     ticker: 'tsla',
-    last_price_dollars: 705.67,
-    opt_imp_vol_180d_pct: 0.6761,
+    verbose_name: 'Tesla, Inc. (TSLA)',
+    last_price_dollars: 880.02,
+    opt_imp_vol_180d_pct: 0.7888,
     shares_owned: 10,
-    capital_invested: 7056.70,
-    one_sigma_risk: 4771.03487,
+    capital_invested: 8800.2,
+    one_sigma_risk: 6941.59776,
     enriched: true,
     portfolio: false
 }
 
-const fb_stock_info_20200103 = {
-    capital_invested: 2731.6000000000004,
-    one_sigma_risk: 1007.4140800000001,
+const fb_stock_info_20200108 = {
+    capital_invested: 2675.7,
+    one_sigma_risk: 989.47386,
     enriched: true,
-    last_price_dollars: 273.16,
-    opt_imp_vol_180d_pct: 0.3688,
+    last_price_dollars: 267.57,
+    opt_imp_vol_180d_pct: 0.3698,
     shares_owned: 10,
     ticker: "fb",
+    verbose_name: 'Facebook, Inc. (FB)',
     portfolio: false
 }
 
@@ -77,7 +79,7 @@ const test_submitted_info_array_with_invalid_ticker = [
 ]
 
 const test_stock_info_array_with_errors = [
-    tsla_stock_info_20200103,
+    tsla_stock_info_20200108,
     {
         enriched: false,
         shares_owned: 10,
@@ -87,12 +89,12 @@ const test_stock_info_array_with_errors = [
 ]
 
 const test_stock_info_result_array = [
-    tsla_stock_info_20200103,
-    fb_stock_info_20200103
+    tsla_stock_info_20200108,
+    fb_stock_info_20200108
 ]
 
 const test_stock_info_result_array_handling_errors = [
-    tsla_stock_info_20200103,
+    tsla_stock_info_20200108,
     {
         ticker: "tslala",
         enriched: false,
@@ -103,6 +105,7 @@ const test_stock_info_result_array_handling_errors = [
 const test_stock_info_array_unportfoliod = [
     {
         ticker: 'tsla',
+        verbose_name: 'Tesla, Inc. (TSLA)',
         last_price_dollars: 10.0,
         opt_imp_vol_180d_pct: 0.5,
         shares_owned: 5.0,
@@ -112,6 +115,7 @@ const test_stock_info_array_unportfoliod = [
     },
     {
         ticker: 'fb',
+        verbose_name: 'Facebook, Inc. (FB)',
         last_price_dollars: 50.0,
         opt_imp_vol_180d_pct: 0.25,
         shares_owned: 3.0,
@@ -124,6 +128,7 @@ const test_stock_info_array_unportfoliod = [
 const test_stock_info_array_unportfoliod_with_invalid_input = [
     {
         ticker: 'tsla',
+        verbose_name: 'Tesla, Inc. (TSLA)',
         last_price_dollars: 10.0,
         opt_imp_vol_180d_pct: 0.5,
         shares_owned: 5.0,
@@ -142,6 +147,7 @@ const test_stock_info_array_unportfoliod_with_invalid_input = [
 const test_stock_info_array_portfoliod = [
     {
         ticker: 'tsla',
+        verbose_name: 'Tesla, Inc. (TSLA)',
         last_price_dollars: 10.0,
         opt_imp_vol_180d_pct: 0.5,
         shares_owned: 5.0,
@@ -154,6 +160,7 @@ const test_stock_info_array_portfoliod = [
     },
     {
         ticker: 'fb',
+        verbose_name: 'Facebook, Inc. (FB)',
         last_price_dollars: 50.0,
         opt_imp_vol_180d_pct: 0.25,
         shares_owned: 3.0,
@@ -169,6 +176,7 @@ const test_stock_info_array_portfoliod = [
 const test_stock_info_array_portfoliod_with_invalid_input = [
     {
         ticker: 'tsla',
+        verbose_name: 'Tesla, Inc. (TSLA)',
         last_price_dollars: 10.0,
         opt_imp_vol_180d_pct: 0.5,
         shares_owned: 5.0,
@@ -244,7 +252,7 @@ test("calculates risk as 0 where there is an invalid input", () => {
 test('Creates stock info object from submitted holdings', async(done) => {
     await capital_and_risk_calcs.createSingleStockInfo(test_submitted_info_single)
     .then(result => {
-        expect(result).toStrictEqual(tsla_stock_info_20200103)
+        expect(result).toStrictEqual(tsla_stock_info_20200108)
     })
     .catch(err => console.error(err))
     .finally(() => done());

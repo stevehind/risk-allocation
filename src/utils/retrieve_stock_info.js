@@ -3,6 +3,32 @@ exports.__esModule = true;
 var axios = require('axios');
 var cheerio = require('cheerio');
 var sanitize_stock_ticker_1 = require("./sanitize_stock_ticker");
+function scrapeStockName(ticker) {
+    return new Promise(function (resolve, reject) {
+        var scrape_target_url = "https://www.alphaquery.com/stock/" + ticker + "/volatility-option-statistics/180-day/historical-volatility";
+        axios.get(scrape_target_url)
+            .then(function (response) {
+            var response_html = response.data;
+            var $ = cheerio.load(response_html);
+            var target = $('#stock-header-container');
+            var first_child = target.children('.text-center');
+            var last_child = first_child.children('h1');
+            var last_child_text = last_child.text();
+            return resolve(last_child_text);
+        })["catch"](function (err) {
+            if (err.message === "Request failed with status code 404") {
+                return reject({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                });
+            }
+            else {
+                return reject({
+                    error_message: err.message
+                });
+            }
+        });
+    });
+}
 function scrapeStockPrice(ticker) {
     return new Promise(function (resolve, reject) {
         var scrape_target_url = "https://www.alphaquery.com/stock/" + ticker + "/all-data-variables";
@@ -70,9 +96,18 @@ function retrieveStockInfo(ticker) {
         ]); })
             .then(function (_a) {
             var price = _a[0], vol = _a[1];
+            return Promise.all([
+                price,
+                vol,
+                retrieve_stock_info.scrapeStockName(sanitized_ticker)
+            ]);
+        })
+            .then(function (_a) {
+            var price = _a[0], vol = _a[1], name = _a[2];
             var success_result = {
                 success: true,
                 data: {
+                    verbose_name: name,
                     ticker: sanitized_ticker,
                     last_price_dollars: price,
                     opt_imp_vol_180d_pct: vol,
@@ -90,6 +125,7 @@ function retrieveStockInfo(ticker) {
     });
 }
 var retrieve_stock_info = {
+    scrapeStockName: scrapeStockName,
     scrapeStockPrice: scrapeStockPrice,
     scrapeOptImpVol: scrapeOptImpVol,
     retrieveStockInfo: retrieveStockInfo

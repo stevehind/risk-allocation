@@ -7,6 +7,7 @@ import sanitize_stock_ticker from './sanitize_stock_ticker'
 export interface singleStockInfo {
     enriched: boolean;
     ticker: string;
+    verbose_name?: string;
     portfolio?: boolean;
     last_price_dollars?: number;
     opt_imp_vol_180d_pct?: number;
@@ -28,6 +29,37 @@ interface stockInfoScrapeFailureResult {
     data: {
         message: string
     };
+}
+
+function scrapeStockName(ticker: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let scrape_target_url = `https://www.alphaquery.com/stock/${ticker}/volatility-option-statistics/180-day/historical-volatility`
+
+        axios.get(scrape_target_url)
+        .then(response => {
+            let response_html = response.data;
+
+            const $ = cheerio.load(response_html)
+
+            let target = $('#stock-header-container')
+            let first_child = target.children('.text-center')
+            let last_child = first_child.children('h1')
+            let last_child_text = last_child.text()
+
+            return resolve(last_child_text)
+        })
+        .catch(err => {
+            if (err.message === "Request failed with status code 404") {
+                return reject ({
+                    error_message: 'This is probably not a valid stock ticker. Tickers should be 1-5 characters, excluding white spaces and leading $ character.'
+                })
+            } else {
+                return reject({
+                    error_message: err.message
+                })
+            }
+        })
+    })
 }
 
 function scrapeStockPrice(ticker: string): Promise<number> {
@@ -107,10 +139,16 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeSuccessResult
             price,
             retrieve_stock_info.scrapeOptImpVol(sanitized_ticker)
         ]))
-        .then(([price, vol]) => {
+        .then(([price, vol]) => Promise.all([
+            price,
+            vol,
+            retrieve_stock_info.scrapeStockName(sanitized_ticker)
+        ]))
+        .then(([price, vol, name]) => {
             let success_result: stockInfoScrapeSuccessResult = {
                 success: true,
                 data: {
+                    verbose_name: name,
                     ticker: sanitized_ticker,
                     last_price_dollars: price,
                     opt_imp_vol_180d_pct: vol,
@@ -131,6 +169,7 @@ function retrieveStockInfo(ticker: string): Promise<stockInfoScrapeSuccessResult
 }
 
 const retrieve_stock_info = {
+    scrapeStockName: scrapeStockName,
     scrapeStockPrice: scrapeStockPrice,
     scrapeOptImpVol: scrapeOptImpVol,
     retrieveStockInfo: retrieveStockInfo
