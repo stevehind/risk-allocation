@@ -78,7 +78,7 @@ function scrapeStockPrice(ticker: string): Promise<number> {
             let next_sibling = second_parent.next();
             let last_child = next_sibling.children('.text-right');
             let last_child_text = last_child.text();
-            let last_child_number = parseFloat(last_child_text)
+            let last_child_number = parseFloat(last_child_text.replace(/,/g, ''))
 
             return resolve(last_child_number)
         })
@@ -111,7 +111,7 @@ function scrapeOptImpVol(ticker: string): Promise<number> {
             let next_child = child.children('a');
             let further_child = next_child.children('.indicator-figure-inner');
             let option_implied_vol_string = further_child.text();
-            let opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
+            let opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string.replace(/,/g, ''));
 
             return resolve(opt_imp_vol_180d_pct)
         })
