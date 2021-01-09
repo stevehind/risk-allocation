@@ -42,7 +42,7 @@ function scrapeStockPrice(ticker) {
             var next_sibling = second_parent.next();
             var last_child = next_sibling.children('.text-right');
             var last_child_text = last_child.text();
-            var last_child_number = parseFloat(last_child_text);
+            var last_child_number = parseFloat(last_child_text.replace(/,/g, ''));
             return resolve(last_child_number);
         })["catch"](function (err) {
             if (err.message === "Request failed with status code 404") {
@@ -70,7 +70,7 @@ function scrapeOptImpVol(ticker) {
             var next_child = child.children('a');
             var further_child = next_child.children('.indicator-figure-inner');
             var option_implied_vol_string = further_child.text();
-            var opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string);
+            var opt_imp_vol_180d_pct = parseFloat(option_implied_vol_string.replace(/,/g, ''));
             return resolve(opt_imp_vol_180d_pct);
         })["catch"](function (err) {
             if (err.message === "Request failed with status code 404") {

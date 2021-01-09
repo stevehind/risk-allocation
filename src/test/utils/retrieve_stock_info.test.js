@@ -32,6 +32,20 @@ test('scrapes stock price', async(done) => {
     .then(result => {
         expect(result).toStrictEqual(tsla_response_20210108.data.last_price_dollars)  
     })
+    .catch(err => {
+        expect(err).toStrictEqual(tsla_response_20210108.data.last_price_dollars)  
+    })
+    .finally(() => done());
+})
+
+test('scrapes a three digit price', async(done) => {
+    await retrieve_stock_info.scrapeStockPrice('amzn')
+    .then(result => {
+        expect(result).toBe(3182.70)
+    })
+    .catch(err => {
+        expect(err).toBe(3182.70)
+    })
     .finally(() => done());
 })
 
@@ -39,6 +53,9 @@ test('scrapes imp vol', async(done) => {
     await retrieve_stock_info.scrapeOptImpVol('tsla')
     .then(result => {
         expect(result).toStrictEqual(tsla_response_20210108.data.opt_imp_vol_180d_pct)
+    })
+    .catch(err => {
+        expect(err).toStrictEqual(tsla_response_20210108.data.opt_imp_vol_180d_pct)
     })
     .finally(() => done());
 })
