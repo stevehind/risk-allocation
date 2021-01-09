@@ -53,7 +53,7 @@ function capitalTotal(portfolio) {
             return value;
         }
     });
-    return capital_per_holding_less_NaNs.reduce(function (r, d) { return r + Math.abs(d); }, 0);
+    return capital_per_holding_less_NaNs.reduce(function (r, d) { return r + d; }, 0);
 }
 function capitalShare(ticker, portfolio) {
     var total_capital = capital_and_risk_calcs.capitalTotal(portfolio);

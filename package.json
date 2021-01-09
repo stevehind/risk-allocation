@@ -34,9 +34,9 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "dev-test": "jest",
+    "test": "jest",
     "dev-compile": "tsc --build tsconfig.json && tsc server.ts",
-    "dev-compile-and-test": "npm run dev-compile && npm run dev-test",
+    "dev-compile-and-test": "npm run dev-compile && npm run test",
     "dev-server-start": "nodemon server.js",
     "dev-client-start": "react-scripts start",
     "client-build": "react-scripts build",

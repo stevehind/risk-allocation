@@ -125,6 +125,29 @@ const test_stock_info_array_unportfoliod = [
     }
 ]
 
+const test_stock_info_array_unportfoliod_short = [
+    {
+        ticker: 'tsla',
+        verbose_name: 'Tesla, Inc. (TSLA)',
+        last_price_dollars: 10.0,
+        opt_imp_vol_180d_pct: 0.5,
+        shares_owned: -5.0,
+        capital_invested: -50.0,
+        enriched: true,
+        portfolio: false
+    },
+    {
+        ticker: 'fb',
+        verbose_name: 'Facebook, Inc. (FB)',
+        last_price_dollars: 50.0,
+        opt_imp_vol_180d_pct: 0.25,
+        shares_owned: 3.0,
+        capital_invested: 150.0,
+        enriched: true,
+        portfolio: false
+    }
+]
+
 const test_stock_info_array_unportfoliod_with_invalid_input = [
     {
         ticker: 'tsla',
@@ -234,6 +257,12 @@ test('calculates dollar value of one sigma move in a stock', () => {
 // Test riskTotal
 test('calculates total risk across portfolio', () => {
     expect(capital_and_risk_calcs.riskTotal(test_stock_info_array_unportfoliod))
+    .toBe(62.5)
+})
+
+
+test("calculates negative risk and positive risk as their sbolute sum", () => {
+    expect(capital_and_risk_calcs.riskTotal(test_stock_info_array_unportfoliod_short))
     .toBe(62.5)
 })
 
